@@ -5,14 +5,19 @@ exceeds the per-request size limit (10 MB), transcribes chunks in parallel and
 re-sends stretches that came back empty despite audible sound.
 
 Needs node + ffmpeg on PATH and a Groq/OpenAI key in mediacript's config
-(%APPDATA%/ffmpeg-simple-converter/config.json). The CLI location defaults to
-~/code/mediacript/packages/cli/cli.mjs; override with MEDIACRIPT_CLI.
+(%APPDATA%/ffmpeg-simple-converter/config.json; run `npx mediacript` once to set it).
+
+Which CLI runs, first match wins:
+  1. MEDIACRIPT_CLI=<path to cli.mjs>  (explicit override)
+  2. ~/code/mediacript/packages/cli/cli.mjs  (local dev clone, picks up unpublished changes)
+  3. npx -y mediacript@^MIN_VERSION  (published package; downloaded and cached on first use)
 """
 
 from __future__ import annotations
 
 import json
 import os
+import shutil
 import subprocess
 import tempfile
 import time
@@ -20,20 +25,28 @@ from pathlib import Path
 
 from .transcript import count_words, scribe_words, write_transcript
 
-DEFAULT_CLI = Path.home() / "code" / "mediacript" / "packages" / "cli" / "cli.mjs"
+DEV_CLI = Path.home() / "code" / "mediacript" / "packages" / "cli" / "cli.mjs"
+MIN_VERSION = "1.2.41"  # first release with `transcribe --words`
 
 
-def cli_path() -> Path:
-    return Path(os.environ.get("MEDIACRIPT_CLI") or DEFAULT_CLI)
+def cli_command() -> list[str]:
+    override = os.environ.get("MEDIACRIPT_CLI")
+    if override:
+        if not Path(override).exists():
+            raise RuntimeError(f"MEDIACRIPT_CLI points to a missing file: {override}")
+        return ["node", override]
+    if DEV_CLI.exists():
+        return ["node", str(DEV_CLI)]
+    npx = shutil.which("npx")
+    if not npx:
+        raise RuntimeError("npx not found on PATH (install Node.js) and no local mediacript clone")
+    return [npx, "-y", f"mediacript@^{MIN_VERSION}"]
 
 
 def run_mediacript(video: Path, language: str | None, prompt: str | None) -> dict:
-    cli = cli_path()
-    if not cli.exists():
-        raise RuntimeError(f"mediacript CLI not found at {cli} (set MEDIACRIPT_CLI)")
     with tempfile.TemporaryDirectory() as tmp:
         out = Path(tmp) / "out.json"
-        cmd = ["node", str(cli), "transcribe", str(video), "--words", "-o", str(out)]
+        cmd = [*cli_command(), "transcribe", str(video), "--words", "-o", str(out)]
         if language:
             cmd += ["--language", language]
         if prompt:

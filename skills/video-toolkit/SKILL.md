@@ -20,7 +20,7 @@ python ~/.claude/skills/video-toolkit/scripts/transcribe.py <pasta_ou_video> --e
 - O áudio vai em pedaços de no máximo 10 MB cortados em pausas, e trechos com som que voltaram vazios são reenviados.
 - O prompt padrão (`--prompt`) mantém muletas ("é", "né", "tipo") e "pato amarelo" escritos literalmente. `--prompt ""` desliga.
 - Cache por arquivo: transcrição existente nunca é refeita (apague o JSON para refazer).
-- Precisa de `node` e `ffmpeg` no PATH e da chave Groq na config do mediacript. O CLI fica em `~/code/mediacript/packages/cli/cli.mjs`; se estiver em outro lugar, defina `MEDIACRIPT_CLI`.
+- Precisa de `node` e `ffmpeg` no PATH e da chave Groq na config do mediacript (rode `npx mediacript` uma vez para configurar). O mediacript é usado por `npx mediacript@^1.2.41` (baixado e guardado em cache no primeiro uso). Se existir o clone em `~/code/mediacript/packages/cli/cli.mjs`, ele tem prioridade (útil para testar mudanças não publicadas); `MEDIACRIPT_CLI=<caminho do cli.mjs>` força outro.
 
 ## Assets
 
