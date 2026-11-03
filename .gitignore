@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.venv/
+.env
+
+# outputs that skills generate next to the footage, never in the repo
+edit/
+_analise/
+*.mp4
+*.mov
+*.mkv
+!skills/video-toolkit/assets/**/*.mp4
+!skills/video-toolkit/assets/**/*.mov
