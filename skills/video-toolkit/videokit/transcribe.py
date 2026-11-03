@@ -23,6 +23,7 @@ def transcribe_all(files: list[Path], edit_dir: Path, language: str | None = "pt
 
     engine: auto = mediacript, then local Whisper for failures; mediacript = no fallback;
     whisper = local only.
+    Raises mediacript.MissingKeyError when no Groq/OpenAI key is configured (never falls back for that).
     """
     t0 = time.time()
     todo = []
@@ -33,12 +34,17 @@ def transcribe_all(files: list[Path], edit_dir: Path, language: str | None = "pt
             todo.append(f)
 
     failed: list[Path] = list(todo) if engine == "whisper" else []
-    if engine != "whisper":
+    if engine != "whisper" and todo:
+        # Checked once up front so a missing key stops here instead of sending every file to local Whisper
+        mediacript.ensure_key()
+
         def work(video: Path) -> None:
             try:
                 status = mediacript.transcribe_to(video, transcript_path(edit_dir, video.stem), language, prompt)
                 print(f"  {video.name}: {status}", flush=True)
-            except Exception as e:  # noqa: BLE001 - any failure goes to the fallback
+            except mediacript.MissingKeyError:
+                raise
+            except Exception as e:  # noqa: BLE001 - any other failure goes to the fallback
                 print(f"  {video.name}: mediacript failed: {e}", flush=True)
                 failed.append(video)
 

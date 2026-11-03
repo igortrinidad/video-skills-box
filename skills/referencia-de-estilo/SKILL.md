@@ -27,7 +27,7 @@ Aceite variações (nomes diferentes, referência solta). Se houver referências
 
 1. **Já existe `estilo.md`?** Se existir e as referências não mudaram, reutilize — não reanalise. Também verifique `~/.claude/skills/referencia-de-estilo/estilos/` se o usuário citar um estilo pelo nome ("usa o estilo do episódio 22").
 
-2. **Medir.** A transcrição usa o `video-toolkit` (Groq, rápido; cai para Whisper local se falhar, e aí demora — nesse caso rode em segundo plano). A detecção de cortes e o contact sheet levam alguns minutos em vídeos longos:
+2. **Medir.** A transcrição usa o `video-toolkit` (Groq, rápido; cai para Whisper local se falhar, e aí demora — nesse caso rode em segundo plano; se parar com `MISSING_API_KEY`, veja "Sem chave do Groq" no SKILL.md do `video-toolkit`). A detecção de cortes e o contact sheet levam alguns minutos em vídeos longos:
    ```
    python ~/.claude/skills/referencia-de-estilo/scripts/analyze_video.py <pasta_referencia>
    ```

@@ -49,6 +49,7 @@ Se já houver uma pasta de skill com o mesmo nome, ela é movida para `~/.claude
 - Python ≥ 3.10: `pip install -r requirements.txt`
 - `ffmpeg`/`ffprobe` e `node` no PATH
 - [video-use](https://github.com/browser-use/video-use) clonada em `~/.claude/skills/video-use` (`pack_transcripts.py`, `timeline_view.py`, `render.py`). É de terceiros (MIT) e não é copiada para cá.
-- [mediacript](https://www.npmjs.com/package/mediacript) ≥ 1.2.41, usado via `npx mediacript@^1.2.41` (sem instalar nada). Configure a chave Groq uma vez com `npx mediacript`. Sem ele a transcrição cai para o Whisper local.
+- [mediacript](https://www.npmjs.com/package/mediacript) ≥ 1.2.42, usado via `npx mediacript@^1.2.42` (sem instalar nada), com uma chave do Groq ([console.groq.com/keys](https://console.groq.com/keys)):
+  `python skills/video-toolkit/scripts/mediacript_key.py set groq <chave>` ou a variável `GROQ_API_KEY`. Sem chave, os scripts param com `MISSING_API_KEY` (código 3) e o Claude pede a chave; `--engine whisper` transcreve localmente sem chave.
   - Ordem de resolução: `MEDIACRIPT_CLI` (caminho de um `cli.mjs`) → clone local em `~/code/mediacript/packages/cli/cli.mjs` (para desenvolver o mediacript) → `npx`.
   - Ao publicar uma versão do mediacript que mude o comando `transcribe`, atualize `MIN_VERSION` em `skills/video-toolkit/videokit/mediacript.py`.

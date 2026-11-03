@@ -23,6 +23,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "video-toolkit"))
 
+from videokit.cli import run_main  # noqa: E402
 from videokit.media import VIDEO_EXTS, capture as sh, list_media, probe  # noqa: E402
 from videokit.transcribe import ENGINES, transcribe_all  # noqa: E402
 from videokit.transcript import load_words, transcript_path  # noqa: E402
@@ -193,4 +194,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    run_main(main)

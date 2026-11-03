@@ -7,6 +7,9 @@ Default engine (auto): mediacript via Groq (a 57 min talk takes ~1 min, 3 files 
 a time); files that fail there (no network, quota, missing key) fall back to local
 faster-whisper on CPU (slow). Cached: existing transcripts are never redone.
 
+No Groq/OpenAI key configured: exits with code 3 (MISSING_API_KEY) without
+transcribing; save one with mediacript_key.py, or pass --engine whisper.
+
 Usage:
     python transcribe.py <video_or_dir> [--edit-dir DIR] [--language pt] [--prompt TEXT]
         [--engine auto|mediacript|whisper] [--jobs 3] [--whisper-model small]
@@ -21,6 +24,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+from videokit.cli import run_main  # noqa: E402
 from videokit.media import list_media  # noqa: E402
 from videokit.transcribe import ENGINES, transcribe_all  # noqa: E402
 from videokit.transcript import DEFAULT_PROMPT  # noqa: E402
@@ -50,4 +54,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    run_main(main)

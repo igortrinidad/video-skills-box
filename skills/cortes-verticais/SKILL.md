@@ -16,7 +16,7 @@ Rode tudo sem pedir confirmação a cada passo; o usuário quer receber os corte
 Scripts nesta skill (`~/.claude/skills/cortes-verticais/scripts/`):
 
 - `remap_transcript.py <edit_dir>` — se o `final.mp4` veio da skill de edição, converte as transcrições brutas para a linha do tempo do final usando `edl.json`. Sai em `edit/transcripts_final/final.json`. **Prefira isso a retranscrever** (mantém a linha do tempo idêntica à da edição).
-- Se não houver `edl.json` (vídeo editado em outro lugar), transcreva o próprio vídeo: `python ~/.claude/skills/video-toolkit/scripts/transcribe.py <video> --edit-dir <dir> --language pt` (rápido, via Groq; cai para Whisper local se falhar) e depois `pack_transcripts.py` da video-use para ler.
+- Se não houver `edl.json` (vídeo editado em outro lugar), transcreva o próprio vídeo: `python ~/.claude/skills/video-toolkit/scripts/transcribe.py <video> --edit-dir <dir> --language pt` (rápido, via Groq; cai para Whisper local se falhar; se parar com `MISSING_API_KEY`, veja "Sem chave do Groq" no SKILL.md do `video-toolkit`) e depois `pack_transcripts.py` da video-use para ler.
 - `make_short.py <spec.json> [--preview]` — renderiza um corte a partir de um spec JSON (formato documentado no topo do script): trechos, layout por trecho, caixas de recorte, legenda e gancho opcional no topo nos primeiros 3s. Cuida de fades de 30ms, concat, legenda e loudness -14 LUFS.
 - `~/.claude/skills/video-use/helpers/timeline_view.py` e `ffmpeg -ss T -frames:v 1` para ver frames.
 
