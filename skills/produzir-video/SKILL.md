@@ -1,6 +1,6 @@
 ---
 name: produzir-video
-description: Porta de entrada para produzir vídeos a partir de uma pasta raiz de projetos. Pergunta a raiz, lê as Referências gerais (elementos gráficos, vídeos de referência, assets como logos/imagens/prints, sons, motions), abre o projeto pedido (material bruto em raw/, assets do projeto em assets/), aplica o tipo de vídeo (Vlog, Reels/Shorts, VSL, YouTube…) e as direções do usuário, gera tudo em edit/ e entrega em final/ com data, hora e título no nome. Use sempre que o usuário pedir "gera um vlog/reels/VSL da pasta X", "edita o projeto X", "produz um vídeo com o material de X" ou citar a pasta de projetos de vídeo — mesmo sem citar esta skill.
+description: Porta de entrada para produzir vídeos a partir de uma pasta raiz de projetos. Pergunta a raiz, lê as Referências gerais (elementos gráficos, vídeos de referência, assets como logos/imagens/prints, sons, motions), abre o projeto pedido (material bruto em raw/, assets do projeto em assets/), aplica o tipo de vídeo (Vlog, Reels/Shorts, VSL, YouTube…) e as direções do usuário, gera tudo em edit/ e entrega em final/ com data, hora e título no nome, junto com um info.txt de título, legenda e hashtags. Use sempre que o usuário pedir "gera um vlog/reels/VSL da pasta X", "edita o projeto X", "produz um vídeo com o material de X" ou citar a pasta de projetos de vídeo — mesmo sem citar esta skill.
 ---
 
 # Produzir vídeo (orquestrador)
@@ -31,6 +31,7 @@ Esta skill organiza **onde** as coisas ficam e **qual** skill faz cada parte. O 
     │   ├── <tipo>-<slug>/                ← quando houver mais de uma peça no projeto (ex.: reels-guardrails/)
     │   └── shorts/                       ← cortes verticais
     └── final/                            ← só entregáveis: "AAAA-MM-DD_HHMM - Título do vídeo.mp4"
+                                            + "AAAA-MM-DD_HHMM - Título do vídeo - info.txt" (título, legenda, hashtags)
 ```
 
 Apelidos aceitos (projetos antigos): `material_bruto`/`brutos` = `raw`; `referencia`/`referencias` = `refs`; `imagens`/`arquivos` = `assets`. Mídia solta na pasta do projeto também conta como bruto — nesse caso pergunte se pode mover para `raw/` (é só renomear, não copia).
@@ -54,11 +55,44 @@ Apelidos aceitos (projetos antigos): `material_bruto`/`brutos` = `raw`; `referen
 
 7. **Executar** com a skill do tipo (tabela abaixo), sempre com `--edit-dir <projeto>/edit` e lendo os brutos de `raw/`. Todos os arquivos intermediários (scripts, overlays, previews, renders) ficam em `edit/`. Nada é escrito em `raw/`, nas Referências gerais (exceto `estilo.md`/`_analise/` da referência) ou dentro das skills.
 
-8. **Entregar.** Para cada vídeo pronto:
-   `projeto.py entregar <edit/.../final.mp4> --projeto <pasta_do_projeto> --titulo "<Título do vídeo>"`
-   Move para `final/AAAA-MM-DD_HHMM - Título.mp4` (data/hora do momento da entrega; caracteres inválidos saem; nomes repetidos ganham `(2)`). Use `--copiar` se a skill de execução ainda precisar do arquivo em `edit/` (ex.: `cortes-verticais` depois do vídeo longo). Thumbnails e textos de post entregues vão com o mesmo prefixo (`… - Título - thumb.png`, `… - Título - post.md`).
+8. **info.txt.** Para cada vídeo, escreva `edit/info.txt` (ou `edit/<tipo>-<slug>/info.txt`) com o formato da seção "info.txt", baseado no que realmente ficou no corte final (releia o `edl.json`/transcrição, não o bruto).
 
-9. **Fechar.** Atualize `edit/project.md` (estado, decisões, assets usados, arquivos em `final/`) e responda com: arquivos entregues, duração, referência e assets usados, e dúvidas.
+9. **Entregar.** Para cada vídeo pronto:
+   `projeto.py entregar <edit/.../final.mp4> --projeto <pasta_do_projeto> --titulo "<Título do vídeo>" --info <edit/.../info.txt>`
+   Move para `final/AAAA-MM-DD_HHMM - Título.mp4` e copia o info para `final/AAAA-MM-DD_HHMM - Título - info.txt` (data/hora do momento da entrega; caracteres inválidos saem; nomes repetidos ganham `(2)` nos dois). Use `--copiar` se a skill de execução ainda precisar do arquivo em `edit/` (ex.: `cortes-verticais` depois do vídeo longo).
+
+10. **Fechar.** Atualize `edit/project.md` (estado, decisões, assets usados, arquivos em `final/`) e responda com: arquivos entregues, duração, título escolhido, referência e assets usados, e dúvidas.
+
+## info.txt
+
+Texto simples UTF-8, pronto para copiar e colar na plataforma. Seções fixas, nesta ordem:
+
+```
+TÍTULO
+<título escolhido — o mesmo usado no nome do arquivo>
+
+OPÇÕES DE TÍTULO
+1. <alternativa>
+2. <alternativa>
+3. <alternativa>
+
+LEGENDA / DESCRIÇÃO
+<texto do post ou descrição do YouTube>
+
+CAPÍTULOS
+00:00 <abertura>
+01:12 <assunto>
+...
+
+HASHTAGS
+#tag1 #tag2 #tag3 ...
+```
+
+- **Título:** até ~60 caracteres no YouTube, sem clickbait que o vídeo não entrega; as opções exploram ângulos diferentes (curiosidade, resultado, pessoa/lugar).
+- **Legenda/descrição:** 2–4 parágrafos curtos para YouTube (o que acontece, quem aparece, contexto da marca, CTA com link se o briefing tiver); 1–3 frases + CTA leve para Reels/Shorts/TikTok. Cite pessoas e empresas pelo nome como aparecem no briefing.
+- **Capítulos:** só em vídeo longo (YouTube), a partir dos timestamps do vídeo final; começa em `00:00` e cada capítulo tem ≥10 s. Omita a seção em vertical.
+- **Hashtags:** 3–5 no YouTube, 5–10 em Reels/TikTok; misture marca, nicho e local. Sem hashtags genéricas demais (#video, #fyp) a menos que o usuário peça.
+- Escreva em português do Brasil, no tom do briefing. Se faltar informação (link, @ da empresa), deixe `<preencher: ...>` em vez de inventar.
 
 ## Tipos de vídeo
 

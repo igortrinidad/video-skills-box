@@ -7,7 +7,7 @@ description: Transforma um vídeo horizontal longo já editado (episódio do You
 
 Entrada: um vídeo horizontal editado (normalmente `<Projeto>/edit/final.mp4` gerado pela skill `editar-video-youtube`). Saída de trabalho: `<Projeto>/edit/shorts/NN-slug.mp4` em 1080×1920 + um `shorts/README.md` com título, legenda de post e hashtags de cada corte.
 
-Entrega (projetos da skill `produzir-video`, com `raw/`/`edit/`/`final/`): cada corte aprovado vai para `final/` com `python ~/.claude/skills/produzir-video/scripts/projeto.py entregar <edit/shorts/NN-slug.mp4> --projeto <Projeto> --titulo "Reels - <título do corte>" --copiar`, e o texto do post vai junto como `… - post.md`. Visual da legenda: siga o asset de legenda das Referências gerais quando existir.
+Entrega (projetos da skill `produzir-video`, com `raw/`/`edit/`/`final/`): cada corte aprovado vai para `final/` com `python ~/.claude/skills/produzir-video/scripts/projeto.py entregar <edit/shorts/NN-slug.mp4> --projeto <Projeto> --titulo "Reels - <título do corte>" --info edit/shorts/NN-slug-info.txt --copiar`; o info.txt de cada corte segue o formato da seção "info.txt" da `produzir-video` (título, legenda curta, hashtags; sem capítulos). Visual da legenda: siga o asset de legenda das Referências gerais quando existir.
 
 Rode tudo sem pedir confirmação a cada passo; o usuário quer receber os cortes prontos. Pergunte só se não houver como decidir sozinho (ex.: não dá pra achar a câmera no frame).
 

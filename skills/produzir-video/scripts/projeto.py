@@ -19,7 +19,7 @@ Usage:
     python projeto.py raiz --set <pasta>
     python projeto.py scan <raiz>                # references + projects (JSON)
     python projeto.py init <pasta_projeto>       # resolve/create raw, assets, refs, edit, final (JSON)
-    python projeto.py entregar <arquivo> --projeto <pasta> --titulo "Titulo" [--copiar] [--quando ISO]
+    python projeto.py entregar <arquivo> --projeto <pasta> --titulo "Titulo" [--info info.txt] [--copiar] [--quando ISO]
 """
 
 from __future__ import annotations
@@ -184,13 +184,22 @@ def cmd_entregar(args) -> None:
     final = Path(args.projeto).expanduser().resolve() / "final"
     final.mkdir(parents=True, exist_ok=True)
     when = datetime.fromisoformat(args.quando) if args.quando else datetime.now()
-    dest = final / f"{when:%Y-%m-%d_%H%M} - {safe_title(args.titulo)}{src.suffix.lower()}"
+    info = Path(args.info).expanduser().resolve() if args.info else None
+    if info and not info.is_file():
+        sys.exit(f"info não encontrado: {info}")
+    stem = f"{when:%Y-%m-%d_%H%M} - {safe_title(args.titulo)}"
     n = 2
-    while dest.exists():
-        dest = final / f"{when:%Y-%m-%d_%H%M} - {safe_title(args.titulo)} ({n}){src.suffix.lower()}"
+    while (final / f"{stem}{src.suffix.lower()}").exists():
+        stem = f"{when:%Y-%m-%d_%H%M} - {safe_title(args.titulo)} ({n})"
         n += 1
+    dest = final / f"{stem}{src.suffix.lower()}"
     (shutil.copy2 if args.copiar else shutil.move)(str(src), str(dest))
-    dump({"entregue": str(dest)})
+    res = {"entregue": str(dest)}
+    if info:
+        info_dest = final / f"{stem} - info.txt"
+        shutil.copy2(str(info), str(info_dest))
+        res["info"] = str(info_dest)
+    dump(res)
 
 
 def main() -> None:
@@ -203,6 +212,7 @@ def main() -> None:
     p.add_argument("arquivo"); p.add_argument("--projeto", required=True); p.add_argument("--titulo", required=True)
     p.add_argument("--copiar", action="store_true", help="copia em vez de mover")
     p.add_argument("--quando", help="data/hora ISO (padrão: agora)")
+    p.add_argument("--info", help="info.txt (título, legenda, hashtags) entregue ao lado do vídeo")
     p.set_defaults(fn=cmd_entregar)
     args = ap.parse_args()
     args.fn(args)
