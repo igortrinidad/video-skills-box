@@ -50,7 +50,9 @@ Apelidos aceitos (projetos antigos): `material_bruto`/`brutos` = `raw`; `referen
 
 6. **Assets.** Antes de montar, olhe os elementos, sons e motions das Referências gerais (abra os PNGs; para vídeo/motion extraia 1 frame). **O nome do arquivo é a instrução de uso** (ex.: "Placa de título — use para lugares, pessoas, títulos, data — utilize as cores da empresa…"): siga-o. Reproduza o visual (posição, proporção, fonte, cor, caixa) em overlays gerados (PIL/ffmpeg ou HyperFrames), trocando texto e cores conforme o briefing; use o arquivo direto quando ele for o próprio asset (som, motion com alfa, logo). Registre no briefing qual asset foi usado onde.
    - **Assets (imagens, prints, logos, fotos, PDFs):** prioridade `<Projeto>/assets/` → `Referencias gerais/Assets/`. Abra cada imagem para saber o que é (o nome do arquivo também orienta: "logo-beleza-completa.png", "print-dashboard.png"). Use como inserts sobre a fala que cita aquilo (print quando falam do sistema, logo na placa de título/abertura, foto como b-roll), em tela cheia sobre fundo desfocado ou num canto, por 2–5 s, com leve zoom se ficar parado. Logo da empresa define as cores das placas. PDF/slide: renderize a página como imagem em `edit/`. Nunca altere o arquivo original — versões recortadas/redimensionadas vão para `edit/assets/`.
-   - Sons: só entram se o tipo/estilo pedir trilha ou o usuário mandar; trilha a ~-20 dB sob a fala (ducking), vinhetas no volume da fala.
+   - Trilha: só entra se o tipo/estilo pedir ou o usuário mandar; ~-20 dB sob a fala (ducking), vinhetas no volume da fala.
+   - **Efeitos sonoros (SFX):** prioridade `Referencias gerais/Sons/` → **SFX Kit** (seção abaixo). Use para dar acabamento aos eventos visuais que a edição já tem: placa entrando, transição de cena, frase do cold open, vinheta de título, número/dado na tela, logo no fim. Com moderação: vlog e depoimento pedem sons suaves (`soft`/`subtle`) e poucos; Reels/VSL aceitam mais e mais fortes. Nunca SFX cobrindo uma fala importante.
+
    - Pastas vazias são normais — siga sem o asset e avise no relatório.
 
 7. **Executar** com a skill do tipo (tabela abaixo), sempre com `--edit-dir <projeto>/edit` e lendo os brutos de `raw/`. Todos os arquivos intermediários (scripts, overlays, previews, renders) ficam em `edit/`. Nada é escrito em `raw/`, nas Referências gerais (exceto `estilo.md`/`_analise/` da referência) ou dentro das skills.
@@ -93,6 +95,26 @@ HASHTAGS
 - **Capítulos:** só em vídeo longo (YouTube), a partir dos timestamps do vídeo final; começa em `00:00` e cada capítulo tem ≥10 s. Omita a seção em vertical.
 - **Hashtags:** 3–5 no YouTube, 5–10 em Reels/TikTok; misture marca, nicho e local. Sem hashtags genéricas demais (#video, #fyp) a menos que o usuário peça.
 - Escreva em português do Brasil, no tom do briefing. Se faltar informação (link, @ da empresa), deixe `<preencher: ...>` em vez de inventar.
+
+## SFX Kit (biblioteca de efeitos sonoros)
+
+[wyzowl/sfx-kit](https://github.com/wyzowl/sfx-kit): 320 efeitos em WAV 48 kHz, licença CC0 (uso comercial livre, sem crédito obrigatório), com dados para escolher, sincronizar e mixar cada som. Não tem música, só efeitos e vinhetas curtas de logo (stings).
+
+- **Onde fica:** cache local fora do OneDrive, baixado uma vez (~67 MB):
+  `git clone --depth 1 https://github.com/wyzowl/sfx-kit "$HOME/.cache/video-skills/sfx-kit"`
+  Se a pasta já existir, use como está (`git -C … pull` só se o usuário pedir atualização). Sem rede ou sem git: siga sem SFX e avise no relatório.
+- **Antes de escolher, leia** `GUIDE.md` (tabela "On screen → Sounds") e `catalogue.md` (uma linha por som). Para escolher por código, use `sounds.json`: `use_for`, `avoid_for`, `tags` e `fits_seconds` (duração do movimento que o som cobre).
+- **Sincronizar:** `início = momento do evento − sync.at`. Ex.: placa aparece em 12,40 s com `pop-small-in` → o som começa em 12,40 − `sync.at`. Risers terminam no corte (`sync.meets = arrival`). Se mudar a velocidade (`adapt.rate`), divida os tempos pela taxa.
+- **Mixar:** os arquivos já vêm com volumes equilibrados entre si. Sob a fala, aplique `under_voiceover_db` (−1 a −8 dB) onde o corpo do som (`timing.onset`→`timing.body_end`) encosta na fala. Não use sobre fala os sons cujo `avoid_for` começa com "On top of speech" (graves, stings, toques). Mixe antes do loudnorm final, com `adelay` + `volume` + `amix` (normalize=0) no ffmpeg.
+- **Mapa rápido para os nossos elementos:**
+  - placa de título / placa de informação entrando → `pop-small-in` ou `whoosh-fast-soft`; saindo → `pop-small-out`;
+  - frase do cold open → `impact-light-firm` ou `tone-ding-mid`;
+  - vinheta de título → `riser-1s-soft` terminando em `cinematic-drum-big` ou `boom-hit-medium`;
+  - troca de ambiente → `whoosh-slow-soft`;
+  - número/dado na tela → `data-number-land`;
+  - print/sistema aparecendo → `notification-message-in-soft` ou `digital-scan-clear`;
+  - logo no fim → `sting-warm-short`.
+- Copie os WAVs usados para `edit/sfx/` (o projeto fica autocontido) e liste no `project.md` cada som com o momento em que entrou.
 
 ## Tipos de vídeo
 
