@@ -14,14 +14,18 @@ Você não assiste ao vídeo como uma pessoa. Você entende a referência por **
 ## Organização de pastas esperada
 
 ```
-meu-projeto/
-├── referencia/          ← vídeo(s) de referência (horizontal e/ou vertical)
+<raiz>/
+├── Referencias gerais/Videos de referencia/<Tipo>/<Nome>/   ← referência compartilhada (ex.: Vlog/Vlog Primo Rico…)
+│   ├── <video>.mp4
 │   ├── _analise/        ← gerado: métricas, frames, transcrições
-│   └── estilo.md        ← gerado: o estilo destilado
-└── brutos/              ← gravações a editar (saída em brutos/edit/)
+│   └── estilo.md        ← gerado: o estilo destilado (reaproveitado por todos os projetos)
+└── <Projeto>/
+    ├── refs/            ← referência só deste projeto (mesma estrutura: _analise/ + estilo.md)
+    ├── raw/             ← brutos
+    └── edit/            ← saída da edição (comparação em edit/_analise/)
 ```
 
-Aceite variações (nomes diferentes, referência solta). Se houver referências horizontais e verticais, gere um estilo para cada formato (seções separadas no mesmo estilo.md).
+Gere o `estilo.md` **na pasta onde a referência está** (compartilhada ou `refs/`), nunca dentro de `raw/`. Aceite variações (`referencia/`, referência solta). Se houver referências horizontais e verticais, gere um estilo para cada formato (seções separadas no mesmo estilo.md).
 
 ## Fluxo
 

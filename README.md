@@ -11,6 +11,8 @@ skills/
 │   ├── scripts/transcribe.py ← CLI de transcrição (Groq via mediacript → Whisper local)
 │   ├── videokit/             ← pacote Python comum (ffmpeg/ffprobe, transcrição, formato Scribe)
 │   └── assets/               ← fontes, logos, músicas, sfx, LUTs, overlays
+├── produzir-video/           ← porta de entrada: raiz de projetos, Referências gerais, tipo de vídeo, entrega em final/
+│   └── scripts/projeto.py    ← raiz / scan / init / entregar
 ├── editar-video-youtube/     ← bruto → final.mp4 (camada de preferências sobre a video-use)
 ├── cortes-verticais/         ← final.mp4 → shorts 9:16
 │   └── scripts/              ← make_short.py, remap_transcript.py
@@ -30,6 +32,24 @@ Regras para manter o repositório organizado:
   Funciona no repositório e instalado em `~/.claude/skills`, porque as skills ficam sempre lado a lado.
 - **Assets compartilhados em `skills/video-toolkit/assets/`** (convenções em `assets/README.md`). O toolkit é uma skill para que os assets e o código sejam instalados junto com as outras.
 - Nos `SKILL.md`, referencie caminhos instalados (`~/.claude/skills/<skill>/...`).
+
+## Pasta de projetos (onde ficam os vídeos)
+
+```
+<raiz>/                         ← perguntada pela produzir-video; a última fica em ~/.config/video-skills/config.json
+├── Referencias gerais/
+│   ├── Elementos graficos gerais/   ← o nome do arquivo descreve quando usar
+│   ├── Videos de referencia/<Tipo>/<Nome>/   ← + estilo.md gerado
+│   ├── Assets/                      ← logos, imagens, prints usados em vários vídeos
+│   ├── Sons/
+│   └── Motions/
+└── <Projeto>/
+    ├── raw/      ← bruto (somente leitura)
+    ├── assets/   ← imagens, prints, logos deste projeto (somente leitura)
+    ├── refs/     ← opcional
+    ├── edit/     ← tudo o que é gerado
+    └── final/    ← "AAAA-MM-DD_HHMM - Título.mp4"
+```
 
 ## Instalação
 

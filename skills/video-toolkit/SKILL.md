@@ -1,6 +1,6 @@
 ---
 name: video-toolkit
-description: Ferramentas compartilhadas pelas skills de vídeo (editar-video-youtube, cortes-verticais, referencia-de-estilo) — transcrição rápida via mediacript/Groq com Whisper local de reserva, no formato JSON da Scribe usado pela video-use, e assets comuns (fontes, logos, músicas, LUTs). Use quando o usuário pedir só para transcrever vídeos/áudios ou gerar legendas com timestamps de palavra, ou quando outra skill de vídeo mandar usar estas ferramentas.
+description: Ferramentas compartilhadas pelas skills de vídeo (produzir-video, editar-video-youtube, cortes-verticais, referencia-de-estilo) — transcrição rápida via mediacript/Groq com Whisper local de reserva, no formato JSON da Scribe usado pela video-use, e assets comuns (fontes, logos, músicas, LUTs). Use quando o usuário pedir só para transcrever vídeos/áudios ou gerar legendas com timestamps de palavra, ou quando outra skill de vídeo mandar usar estas ferramentas.
 ---
 
 # Video toolkit (compartilhado)
@@ -37,7 +37,7 @@ Se o script parar com `MISSING_API_KEY`, nada foi transcrito e ele **não** caiu
 
 ## Assets
 
-`~/.claude/skills/video-toolkit/assets/` — veja `assets/README.md` para as pastas e convenções.
+`~/.claude/skills/video-toolkit/assets/` — veja `assets/README.md` para as pastas e convenções. São assets técnicos (fontes, LUTs). Os assets de produção do usuário (elementos gráficos, sons, motions, vídeos de referência) ficam na pasta `Referencias gerais/` da raiz de projetos — veja a skill `produzir-video`; eles têm prioridade.
 
 ## Código compartilhado (para quem escreve scripts de skill)
 

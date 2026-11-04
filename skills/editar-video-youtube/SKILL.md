@@ -7,7 +7,24 @@ description: Edita vídeos brutos (gravações longas de YouTube, aulas, tutoria
 
 Edição minimalista: o objetivo é um vídeo enxuto e natural, sem efeitos. Corta o que atrapalha (silêncio, erro, repetição, espera) e escolhe o enquadramento certo para cada momento. Nada além disso, a menos que o usuário peça.
 
-Esta skill é uma **camada de preferências** sobre a `video-use`. Leia `~/.claude/skills/video-use/SKILL.md` e respeite as Hard Rules dela (cortes em fronteira de palavra, padding, fades de 30ms, extract por segmento → concat, saídas em `<pasta>/edit/`). Aqui ficam só as decisões editoriais do usuário e as diferenças de setup.
+Esta skill é uma **camada de preferências** sobre a `video-use`. Leia `~/.claude/skills/video-use/SKILL.md` e respeite as Hard Rules dela (cortes em fronteira de palavra, padding, fades de 30ms, extract por segmento → concat). Aqui ficam só as decisões editoriais do usuário e as diferenças de setup.
+
+## Pastas
+
+Quando o pedido vier por uma pasta raiz de projetos ("gera um vlog da pasta X"), quem organiza é a skill `produzir-video` (raiz, Referências gerais, briefing, tipo de vídeo, entrega). Layout de um projeto:
+
+```
+<Projeto>/
+├── raw/     ← brutos, somente leitura (aceite material_bruto/ ou mídia solta em projetos antigos)
+├── assets/  ← imagens, prints, logos do projeto para inserts (somente leitura)
+├── refs/    ← referências do projeto (opcional)
+├── edit/    ← tudo o que for gerado: transcripts/, edl.json, analise.md, preview.mp4, final.mp4…
+└── final/   ← entregáveis: "AAAA-MM-DD_HHMM - Título.mp4"
+```
+
+- Use sempre `--edit-dir <Projeto>/edit` (não `raw/edit`). No `edl.json`, as fontes ficam relativas a `edit/`: `"../raw/ARQ.MP4"`.
+- `timeline_view.py` não acha a transcrição sozinho com os brutos em `raw/`: passe `--transcript <edit>/transcripts/<nome>.json -o <edit>/verify/<png>`.
+- Ao terminar, entregue o `edit/final.mp4` em `final/` com `python ~/.claude/skills/produzir-video/scripts/projeto.py entregar <edit>/final.mp4 --projeto <Projeto> --titulo "<título>"` (use `--copiar` se os `cortes-verticais` vierem em seguida). Se o usuário mandar só uma pasta solta de brutos, sem projeto, mantenha o comportamento antigo (`<pasta>/edit/final.mp4`).
 
 ## Diferenças em relação à video-use
 
@@ -20,7 +37,7 @@ Esta skill é uma **camada de preferências** sobre a `video-use`. Leia `~/.clau
 
 ## Vídeo de referência (estilo)
 
-Se houver uma pasta de referência (ex.: `referencia/` ao lado dos brutos), um `estilo.md`, ou o usuário pedir "edita no estilo de X", siga a skill `referencia-de-estilo` antes de editar para obter o `estilo.md` (reutilize se já existir). A partir daí:
+Se houver uma pasta de referência (`refs/` do projeto, ou a referência escolhida em `Referencias gerais/Videos de referencia/<Tipo>/` pela `produzir-video`), um `estilo.md`, ou o usuário pedir "edita no estilo de X", siga a skill `referencia-de-estilo` antes de editar para obter o `estilo.md` (reutilize se já existir). A partir daí:
 
 - **O `estilo.md` manda** sobre os valores padrão desta skill: tamanho de pausa mantida, ritmo, regras de troca de enquadramento, abertura/encerramento, legendas e textos na tela. As regras de *o que cortar* (pato amarelo, retakes, falas fora do público) continuam valendo — elas são sobre limpeza, não estilo.
 - Se o estilo pedir algo fora do material (ex.: zoom/punch-in sem ter câmera separada → use crop do próprio quadro; legenda → `render.py --build-subtitles` com estilo ajustado; animações → só se o usuário confirmar, via HyperFrames), faça o que for possível com ffmpeg e registre o restante em `edit/analise.md`.
@@ -59,9 +76,9 @@ Detecte o formato pela inventário (`ffprobe` + um `timeline_view` de cada arqui
 4. Pré-varredura do `takes_packed.md`: listar todas as ocorrências de "pato amarelo", retakes, silêncios longos e a divisão em tópicos/notícias. Grave essa lista em `edit/analise.md` — ela é a base das decisões e ajuda o usuário a auditar depois.
 5. Montar `edit/edl.json` com cortes + layout por range (`reason` curto em cada range: o que foi cortado antes dele e por quê).
 6. `render.py edl.json -o edit/preview.mp4 --preview`, rodar a autoavaliação da video-use (cortes, pops de áudio, duração) e corrigir (máx. 3 passes).
-7. Render final `edit/final.mp4` na resolução da fonte (normalmente 1080p).
-8. Atualizar `edit/project.md` e responder com: duração bruta → final, nº de cortes por tipo (pato amarelo / retake / silêncio), divisão por tópico com timestamps no vídeo final (já serve de capítulos para o YouTube) e qualquer trecho em que ficou em dúvida.
+7. Render final `edit/final.mp4` na resolução da fonte (normalmente 1080p) e entregar em `final/` (seção "Pastas").
+8. Atualizar `edit/project.md` e responder com: arquivo entregue, duração bruta → final, nº de cortes por tipo (pato amarelo / retake / silêncio), divisão por tópico com timestamps no vídeo final (já serve de capítulos para o YouTube) e qualquer trecho em que ficou em dúvida.
 
 ## Fora do escopo (a menos que peçam)
 
-Legendas, animações, color grade, música — a menos que o `estilo.md` da referência peça. Se pedirem animações/legendas elaboradas, sugira HyperFrames (via video-use) depois do corte pronto. Para cortes verticais de TikTok/Reels a partir do `final.mp4`, use a skill `cortes-verticais` depois (ela reaproveita o `edl.json` e as transcrições desta etapa).
+Legendas, animações, color grade, música — a menos que o `estilo.md` da referência, o tipo de vídeo ou o briefing da `produzir-video` peça (aí use os assets das Referências gerais). Se pedirem animações/legendas elaboradas, sugira HyperFrames (via video-use) depois do corte pronto. Para cortes verticais de TikTok/Reels a partir do `final.mp4`, use a skill `cortes-verticais` depois (ela reaproveita o `edl.json` e as transcrições desta etapa).
