@@ -6,6 +6,7 @@ __pycache__/
 # outputs that skills generate next to the footage, never in the repo
 edit/
 _analise/
+_trabalho/
 *.mp4
 *.mov
 *.mkv

@@ -1,6 +1,6 @@
 ---
 name: video-toolkit
-description: Ferramentas compartilhadas pelas skills de vídeo (produzir-video, editar-video-youtube, cortes-verticais, referencia-de-estilo) — transcrição rápida via mediacript/Groq com Whisper local de reserva, no formato JSON da Scribe usado pela video-use, e assets comuns (fontes, logos, músicas, LUTs). Use quando o usuário pedir só para transcrever vídeos/áudios ou gerar legendas com timestamps de palavra, ou quando outra skill de vídeo mandar usar estas ferramentas.
+description: Ferramentas compartilhadas pelas skills de vídeo (produzir-video, editar-video-youtube, cortes-verticais, referencia-de-estilo, video-to-code) — transcrição rápida via mediacript/Groq com Whisper local de reserva, no formato JSON da Scribe usado pela video-use, e assets comuns (fontes, logos, músicas, LUTs). Use quando o usuário pedir só para transcrever vídeos/áudios ou gerar legendas com timestamps de palavra, ou quando outra skill de vídeo mandar usar estas ferramentas.
 ---
 
 # Video toolkit (compartilhado)

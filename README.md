@@ -16,9 +16,11 @@ skills/
 ├── editar-video-youtube/     ← bruto → final.mp4 (camada de preferências sobre a video-use)
 ├── cortes-verticais/         ← final.mp4 → shorts 9:16
 │   └── scripts/              ← make_short.py, remap_transcript.py
-└── referencia-de-estilo/     ← vídeo de referência → estilo.md + comparação de métricas
-    ├── scripts/analyze_video.py
-    └── estilos/              ← estilos salvos para reuso
+├── referencia-de-estilo/     ← vídeo de referência → estilo.md + comparação de métricas
+│   ├── scripts/analyze_video.py
+│   └── estilos/              ← estilos salvos para reuso
+└── video-to-code/            ← link do YouTube → código transcrito da tela + README com prints
+    └── scripts/video_to_code.py  ← destino / baixar / frames / transcrever / frame / crop
 ```
 
 Regras para manter o repositório organizado:
@@ -68,6 +70,7 @@ Se já houver uma pasta de skill com o mesmo nome, ela é movida para `~/.claude
 
 - Python ≥ 3.10: `pip install -r requirements.txt`
 - `ffmpeg`/`ffprobe` e `node` no PATH
+- [yt-dlp](https://github.com/yt-dlp/yt-dlp) (instalado pelo `requirements.txt`), usado pela `video-to-code` para baixar do YouTube. Mantenha atualizado (`pip install -U yt-dlp`): o YouTube muda com frequência.
 - [video-use](https://github.com/browser-use/video-use) clonada em `~/.claude/skills/video-use` (`pack_transcripts.py`, `timeline_view.py`, `render.py`). É de terceiros (MIT) e não é copiada para cá.
 - [SFX Kit](https://github.com/wyzowl/sfx-kit) (CC0), efeitos sonoros usados pela `produzir-video`: clonado sob demanda em `~/.cache/video-skills/sfx-kit` (~67 MB), fora do repositório.
 - [mediacript](https://www.npmjs.com/package/mediacript) ≥ 1.2.42, usado via `npx mediacript@^1.2.42` (sem instalar nada), com uma chave do Groq ([console.groq.com/keys](https://console.groq.com/keys)):
