@@ -355,9 +355,10 @@ def status(project: Path) -> dict:
     elif any(r["notes"] != "done" for r in rows):
         nxt = "scout: write the notes of the batches whose notes are missing or stale"
     elif not videos:
-        nxt = "plan: turn the notes into video plans with `new`"
+        nxt = "plan: turn the notes into video plans with `new`, one video per step (create it, fill its file, then the next)"
     elif any(c["problems"] for c in checks.values()):
-        nxt = "fix: run `check` and fix the video files it reports"
+        nxt = ("fix: run `check` and fix the video files it reports, one file per step; a file with template text "
+               "was created and not filled, so fill it and then continue planning the remaining videos")
     elif by_status.get("producing"):
         nxt = f"produce: resume {by_status['producing']} (read each video's `workdir`)"
     elif by_status.get("approved"):
@@ -461,7 +462,10 @@ def cmd_new(args) -> None:
           "created": date.today(), "updated": date.today(), "workdir": None, "final": None}
     v = {"file": exp_dir(project) / "videos" / f"{vid}-{slug}.md", "fm": fm, "body": VIDEO_BODY}
     save_video(v)
-    dump({"id": vid, "file": str(v["file"]), "next": "replace every section of the body with the real plan, then run `check`"})
+    dump({"id": vid, "file": str(v["file"]),
+          "next": "fill this file now with your file-editing tool (replace every section of the body with the real plan) "
+                  "before creating the next video; one video per step, never several plans in one command or script; "
+                  "run `check` after the last one"})
 
 
 def cmd_check(args) -> None:

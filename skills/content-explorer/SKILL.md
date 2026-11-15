@@ -38,7 +38,7 @@ Run `explore.py status <project>` before anything else, every time. Its `next` f
 | `material:` | Run `explore.py material <project>`, then step 3 for the batches not `done`. |
 | `scout:` | Step 3, only for the batches whose `notes` is `missing` or `stale`. |
 | `plan:` | Step 4. |
-| `fix:` | Run `check` and correct the files it lists. |
+| `fix:` | Run `check` and correct the files it lists, one file per step. A file that still has template text is a plan that was created and not filled: fill it as in "4. Plan the videos", then continue with the videos still to create. |
 | `approve:` | Step 5. |
 | `produce:` | Step 7. |
 | `review:` | Step 8. |
@@ -125,6 +125,7 @@ material: m98cf999b
 - **Threads**: things that start or continue in other batches, for the planner to connect.
 - Scout only for the styles and formats in the session, but note under Threads anything outstanding that falls outside them.
 - A batch with nothing worth making gets a notes file that says so. Do not invent candidates to fill the file.
+- One notes file per tool call. Never write the notes of several batches in a single call or through a script.
 
 ### 4. Plan the videos
 
@@ -132,9 +133,12 @@ This step is done by one agent (you), because it needs every batch at once. Read
 
 1. **Merge and connect.** The same idea found in two batches is one video. Threads become long videos or multi-part stories. A `long` video is built from the timeline (beginning, development, payoff), with building blocks as openings and transitions.
 2. **Choose.** Respect the quantity asked; when none was given, keep every idea you would defend to the user and drop the weak ones (strength below 6). Variety matters: do not propose five videos with the same hook. The same excerpt may appear in more than one video (a short and the vlog), but two shorts built on the same punchline are one video.
-3. **Create each plan**: `explore.py new <project> --title "..." --format short --style fun [--style ...] --duration 35 --score 8 --person "<Name as in the knowledge base>"`. It prints the file to fill. `--duration` is the length of the finished video in seconds; `--score` is 1 to 10.
-4. **Fill in every section** of the file, replacing the template text (format below).
-5. `explore.py check <project>` until `to_fix` has no `problems`. It validates the clip references and time ranges against the footage, flags people marked `publish: ask` or `avoid`, rewrites `overview.md`, and lists `high_value_clips_in_no_video`: look at each of those and either use it or be able to say why not.
+3. **List before writing.** Reply with the list of videos you chose, one line each (title, format, styles, target duration, score). This list is short; the plans themselves are written in the next steps, one at a time.
+4. **Create one plan**: `explore.py new <project> --title "..." --format short --style fun [--style ...] --duration 35 --score 8 --person "<Name as in the knowledge base>"`. It prints the file to fill. `--duration` is the length of the finished video in seconds; `--score` is 1 to 10.
+5. **Fill in every section** of that file with your file-editing tool, replacing the template text (format below). Then go back to step 4 for the next video of the list.
+6. `explore.py check <project>` until `to_fix` has no `problems`. It validates the clip references and time ranges against the footage, flags people marked `publish: ask` or `avoid`, rewrites `overview.md`, and lists `high_value_clips_in_no_video`: look at each of those and either use it or be able to say why not.
+
+**One video per step, never all at once.** Each tool call creates or fills a single video file. Do not write a script, a shell command or one long message that produces several plans together: an output that large takes minutes to generate, the connection to the model drops before it ends (`Connection lost while reading the response`), and the retry starts the same long output again, so nothing is ever saved. Written one at a time, every finished plan is on disk, and an interrupted session continues from `status`, which lists the videos that still have template text.
 
 What makes a plan good:
 
