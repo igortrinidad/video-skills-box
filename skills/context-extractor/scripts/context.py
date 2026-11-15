@@ -14,7 +14,7 @@ Transcripts go to <project>/edit/transcripts/<clip>.json, shared with the editin
 
 Usage:
     python context.py prepare <project> [--gap-min 10] [--utc-offset -3] [--language pt]
-                                        [--engine auto] [--jobs 4] [--no-transcribe]
+                                        [--engine mediacript] [--jobs 4] [--no-transcribe]
     python context.py status <project>
     python context.py labels <project> [--set "old label=New Name" ...] [--apply]
     python context.py catalog <project>
@@ -535,7 +535,10 @@ def cmd_prepare(args) -> None:
                                     prompt=f"{DEFAULT_PROMPT} {names}." if names else DEFAULT_PROMPT,
                                     engine=args.engine)
             if failed:
-                print(f"transcription failed: {', '.join(f.name for f in failed)}", flush=True)
+                print(f"transcription failed for {len(failed)} clip(s): {', '.join(f.name for f in failed)}\n"
+                      "  not transcribed locally on purpose (local Whisper takes about as long as the footage).\n"
+                      "  The mediacript error of each clip is printed above: fix that and run prepare again.",
+                      flush=True)
 
     todo = [c for c in clips if not (ctx / "frames" / f"{c['clip']}.jpg").exists()]
     if todo:
@@ -564,7 +567,9 @@ def main() -> None:
     p.add_argument("--utc-offset", type=float, default=None,
                    help="hours from UTC where the footage was shot (default: this computer's time zone)")
     p.add_argument("--language", default="pt")
-    p.add_argument("--engine", choices=ENGINES, default="auto")
+    p.add_argument("--engine", choices=ENGINES, default="mediacript",
+                   help="mediacript (default): cloud only, a clip that fails stays untranscribed; "
+                        "auto and whisper use the slow local Whisper")
     p.add_argument("--jobs", type=int, default=4)
     p.add_argument("--no-transcribe", action="store_true")
     p.set_defaults(fn=cmd_prepare)
