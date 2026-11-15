@@ -2,4 +2,4 @@ numpy
 pillow
 pyyaml
 yt-dlp
-faster-whisper  # only for the local transcription fallback
+faster-whisper  # only for local transcription (--engine whisper / auto), never used by default

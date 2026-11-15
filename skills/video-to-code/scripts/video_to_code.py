@@ -16,7 +16,7 @@ Usage:
     python video_to_code.py destino [--set <pasta>]          # last destination (JSON)
     python video_to_code.py baixar <url> --destino <pasta>     # download + metadata (JSON)
     python video_to_code.py frames <pasta_video> [--every 2] [--screen 0.35] [--step 0.03]
-    python video_to_code.py transcrever <pasta_video> [--language pt] [--engine auto] [--legenda]
+    python video_to_code.py transcrever <pasta_video> [--language pt] [--engine mediacript] [--legenda]
     python video_to_code.py frame <pasta_video> --at 12:34 [--at 1:02:03] [--into conferencia/x]
     python video_to_code.py crop <imagem> --box x,y,w,h [--scale 2] [-o saida.png]
 """
@@ -346,7 +346,7 @@ def cmd_transcrever(args) -> None:
         if args.language:
             vtts = [v for v in vtts if f".{args.language}" in v.name] or vtts
         if not vtts:
-            sys.exit("o vídeo não tem legendas do YouTube; use a transcrição (Groq/Whisper)")
+            sys.exit("o vídeo não tem legendas do YouTube; use a transcrição de áudio (sem --legenda)")
         words = vtt_words(vtts[0])
         source = f"legenda do YouTube ({vtts[0].name})"
     else:
@@ -354,7 +354,7 @@ def cmd_transcrever(args) -> None:
         from videokit.transcript import load_words, transcript_path
 
         if transcribe_all([video], work, language=args.language or None, prompt=None, engine=args.engine):
-            sys.exit("transcrição falhou")
+            sys.exit("transcrição falhou (erro do mediacript acima); corrija e rode de novo, ou use --legenda")
         words = load_words(transcript_path(work, video.stem), only_words=True)
         source = "transcrição de áudio (video-toolkit)"
 
@@ -409,7 +409,7 @@ def main() -> None:
     p = sub.add_parser("transcrever")
     p.add_argument("pasta", type=Path)
     p.add_argument("--language", default=None, help="pt, en... (padrão: detectar)")
-    p.add_argument("--engine", choices=("auto", "mediacript", "whisper"), default="auto")
+    p.add_argument("--engine", choices=("mediacript", "auto", "whisper"), default="mediacript")
     p.add_argument("--legenda", action="store_true", help="usar a legenda do YouTube (sem chave, instantâneo)")
     p.add_argument("--gap", type=float, default=1.2, help="pausa (s) que abre novo parágrafo")
     p.add_argument("--max-len", type=float, default=45.0, help="duração máxima (s) de um parágrafo")

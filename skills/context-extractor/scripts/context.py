@@ -39,7 +39,7 @@ from videokit import knowledge  # noqa: E402
 from videokit.cli import run_main  # noqa: E402
 from videokit.media import VIDEO_EXTS, capture  # noqa: E402
 from videokit.project import raw_dir  # noqa: E402
-from videokit.transcribe import ENGINES, transcribe_all  # noqa: E402
+from videokit.transcribe import DEFAULT_ENGINE, ENGINES, transcribe_all  # noqa: E402
 from videokit.transcript import DEFAULT_PROMPT, load_words, transcript_path  # noqa: E402
 
 TYPES = ["talk", "to-camera", "interview", "conversation", "b-roll", "behind-the-scenes", "screen", "discard"]
@@ -535,10 +535,8 @@ def cmd_prepare(args) -> None:
                                     prompt=f"{DEFAULT_PROMPT} {names}." if names else DEFAULT_PROMPT,
                                     engine=args.engine)
             if failed:
-                print(f"transcription failed for {len(failed)} clip(s): {', '.join(f.name for f in failed)}\n"
-                      "  not transcribed locally on purpose (local Whisper takes about as long as the footage).\n"
-                      "  The mediacript error of each clip is printed above: fix that and run prepare again.",
-                      flush=True)
+                print(f"transcription failed for {len(failed)} clip(s); they stay in transcripts_missing "
+                      "until prepare runs again", flush=True)
 
     todo = [c for c in clips if not (ctx / "frames" / f"{c['clip']}.jpg").exists()]
     if todo:
@@ -567,7 +565,7 @@ def main() -> None:
     p.add_argument("--utc-offset", type=float, default=None,
                    help="hours from UTC where the footage was shot (default: this computer's time zone)")
     p.add_argument("--language", default="pt")
-    p.add_argument("--engine", choices=ENGINES, default="mediacript",
+    p.add_argument("--engine", choices=ENGINES, default=DEFAULT_ENGINE,
                    help="mediacript (default): cloud only, a clip that fails stays untranscribed; "
                         "auto and whisper use the slow local Whisper")
     p.add_argument("--jobs", type=int, default=4)

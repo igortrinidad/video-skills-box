@@ -8,7 +8,7 @@ Skills de vídeo para o Claude Code (e agentes compatíveis) e os assets compart
 skills/
 ├── video-toolkit/            ← compartilhado por todas as skills
 │   ├── SKILL.md              ← transcrição avulsa + referência das ferramentas
-│   ├── scripts/transcribe.py ← CLI de transcrição (Groq via mediacript → Whisper local)
+│   ├── scripts/transcribe.py ← CLI de transcrição (Groq via mediacript, na nuvem)
 │   ├── videokit/             ← pacote Python comum (ffmpeg/ffprobe, transcrição, formato Scribe, pastas de projeto, base de conhecimento)
 │   └── assets/               ← fontes, logos, músicas, sfx, LUTs, overlays
 ├── produzir-video/           ← porta de entrada: raiz de projetos, Referências gerais, tipo de vídeo, entrega em final/
@@ -101,6 +101,7 @@ Se já houver uma pasta de skill com o mesmo nome, ela é movida para `~/.claude
 - [video-use](https://github.com/browser-use/video-use) clonada em `~/.claude/skills/video-use` (`pack_transcripts.py`, `timeline_view.py`, `render.py`). É de terceiros (MIT) e não é copiada para cá.
 - [SFX Kit](https://github.com/wyzowl/sfx-kit) (CC0), efeitos sonoros usados pela `produzir-video`: clonado sob demanda em `~/.cache/video-skills/sfx-kit` (~67 MB), fora do repositório.
 - [mediacript](https://www.npmjs.com/package/mediacript) ≥ 1.2.42, usado via `npx mediacript@^1.2.42` (sem instalar nada), com uma chave do Groq ([console.groq.com/keys](https://console.groq.com/keys)):
-  `python skills/video-toolkit/scripts/mediacript_key.py set groq <chave>` ou a variável `GROQ_API_KEY`. Sem chave, os scripts param com `MISSING_API_KEY` (código 3) e o Claude pede a chave; `--engine whisper` transcreve localmente sem chave.
+  `python skills/video-toolkit/scripts/mediacript_key.py set groq <chave>` ou a variável `GROQ_API_KEY`. Sem chave, os scripts param com `MISSING_API_KEY` (código 3) e o Claude pede a chave.
+  - Toda transcrição usa `--engine mediacript` por padrão: nada roda na máquina. Um arquivo que falhar é listado com o erro do mediacript, para o problema ser corrigido lá. O Whisper local (cerca de 1 hora por hora de vídeo) só roda se pedido: `--engine whisper`, ou `--engine auto` para usá-lo no que falhou.
   - Ordem de resolução: `MEDIACRIPT_CLI` (caminho de um `cli.mjs`) → clone local em `~/code/mediacript/packages/cli/cli.mjs` (para desenvolver o mediacript) → `npx`.
   - Ao publicar uma versão do mediacript que mude o comando `transcribe`, atualize `MIN_VERSION` em `skills/video-toolkit/videokit/mediacript.py`.

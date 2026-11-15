@@ -6,7 +6,7 @@ re-sends stretches that came back empty despite audible sound.
 
 Needs node + ffmpeg on PATH and a Groq/OpenAI key: GROQ_API_KEY, or saved in
 mediacript's config with scripts/mediacript_key.py (`mediacript config set`).
-A missing key raises MissingKeyError instead of falling back to local Whisper.
+A missing key raises MissingKeyError; any other failure raises RuntimeError with the CLI's last lines.
 
 Which CLI runs, first match wins:
   1. MEDIACRIPT_CLI=<path to cli.mjs>  (explicit override)
@@ -41,8 +41,7 @@ class MissingKeyError(RuntimeError):
             "no Groq/OpenAI API key configured for mediacript.\n"
             f"  Get a Groq key at {KEYS_URL} (free tier available) and save it with:\n"
             "    python ~/.claude/skills/video-toolkit/scripts/mediacript_key.py set groq <key>\n"
-            "  or set the GROQ_API_KEY environment variable.\n"
-            "  To transcribe locally instead (slow), pass --engine whisper."
+            "  or set the GROQ_API_KEY environment variable."
         )
 
 

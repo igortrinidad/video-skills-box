@@ -4,10 +4,10 @@ For each video writes <out>/<stem>/:
   metrics.json       - duration, shots/min, shot lengths, speech pace, pauses kept, loudness
   scenes.json        - detected cut times
   contact_sheet.png  - one labelled frame per shot (sampled), for visual reading
-  transcripts/       - cached transcript (Scribe-compatible; Groq via mediacript, local Whisper fallback)
+  transcripts/       - cached transcript (Scribe-compatible; Groq via mediacript)
 
 Usage:
-  python analyze_video.py <video_or_dir> [--out DIR] [--scene 0.25] [--engine auto] [--no-transcribe]
+  python analyze_video.py <video_or_dir> [--out DIR] [--scene 0.25] [--engine mediacript] [--no-transcribe]
   python analyze_video.py --compare ref/metrics.json final/metrics.json
 """
 
@@ -25,7 +25,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "video-toolkit"))
 
 from videokit.cli import run_main  # noqa: E402
 from videokit.media import VIDEO_EXTS, capture as sh, list_media, probe  # noqa: E402
-from videokit.transcribe import ENGINES, transcribe_all  # noqa: E402
+from videokit.transcribe import DEFAULT_ENGINE, ENGINES, transcribe_all  # noqa: E402
 from videokit.transcript import load_words, transcript_path  # noqa: E402
 
 
@@ -174,9 +174,9 @@ def main() -> None:
     ap.add_argument("--out", type=Path, default=None, help="default: <dir>/_analise")
     ap.add_argument("--scene", type=float, default=0.25,
                     help="scene-change threshold; lower (0.1-0.15) catches jump cuts on talking heads")
-    ap.add_argument("--engine", choices=ENGINES, default="auto",
-                    help="transcription engine for pace metrics (auto: Groq, local Whisper fallback)")
-    ap.add_argument("--model", default="small", help="local whisper model, used only on fallback/--engine whisper")
+    ap.add_argument("--engine", choices=ENGINES, default=DEFAULT_ENGINE,
+                    help="transcription engine for pace metrics (mediacript: Groq, no local fallback)")
+    ap.add_argument("--model", default="small", help="local whisper model, used only with --engine auto/whisper")
     ap.add_argument("--no-transcribe", action="store_true")
     ap.add_argument("--max-frames", type=int, default=40)
     ap.add_argument("--compare", nargs=2, type=Path, metavar=("REF_METRICS", "EDIT_METRICS"))

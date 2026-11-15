@@ -53,7 +53,7 @@ Baixa em até 1080p (código fica legível; use `--max-height 1440` se a fonte d
 vtc transcrever <pasta> --language pt      # ou en; omita para detectar
 ```
 
-Usa o `video-toolkit` (Groq, rápido). Se parar com `MISSING_API_KEY`, siga "Sem chave do Groq" no SKILL.md do `video-toolkit` — mas ofereça também `--legenda`, que usa a legenda do YouTube (instantânea, sem chave, menos precisa). Gera `transcricao.md`. Rode em segundo plano enquanto extrai os frames.
+Usa o `video-toolkit` (Groq, rápido, sem processar na máquina). Se parar com `MISSING_API_KEY`, siga "Sem chave do Groq" no SKILL.md do `video-toolkit` — mas ofereça também `--legenda`, que usa a legenda do YouTube (instantânea, sem chave, menos precisa). Se parar com `transcrição falhou`, siga "Se o mediacript falhar" no mesmo SKILL.md; `--legenda` também serve de saída aqui. Gera `transcricao.md`. Rode em segundo plano enquanto extrai os frames.
 
 ### 4. Extrair frames
 

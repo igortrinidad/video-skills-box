@@ -1,5 +1,7 @@
-"""Transcribe many files: mediacript first (parallel), local Whisper for whatever failed.
+"""Transcribe many files through mediacript (cloud, parallel).
 
+Local Whisper is opt-in (engine "auto" or "whisper"): it takes about as long as the footage,
+so by default a file that fails in mediacript is reported instead of being transcribed locally.
 Cached: a source whose transcript already exists is skipped.
 """
 
@@ -13,16 +15,17 @@ from pathlib import Path
 from . import mediacript, whisper_local
 from .transcript import DEFAULT_PROMPT, transcript_path
 
-ENGINES = ("auto", "mediacript", "whisper")
+ENGINES = ("mediacript", "auto", "whisper")
+DEFAULT_ENGINE = "mediacript"
 
 
 def transcribe_all(files: list[Path], edit_dir: Path, language: str | None = "pt",
-                   prompt: str | None = DEFAULT_PROMPT, engine: str = "auto", jobs: int = 3,
+                   prompt: str | None = DEFAULT_PROMPT, engine: str = DEFAULT_ENGINE, jobs: int = 3,
                    whisper_model: str = "small", threads: int | None = None) -> list[Path]:
     """Writes <edit_dir>/transcripts/<stem>.json for each file. Returns the files that still failed.
 
-    engine: auto = mediacript, then local Whisper for failures; mediacript = no fallback;
-    whisper = local only.
+    engine: mediacript = cloud only, failures are returned; auto = mediacript, then local Whisper
+    for failures; whisper = local only.
     Raises mediacript.MissingKeyError when no Groq/OpenAI key is configured (never falls back for that).
     """
     t0 = time.time()
@@ -59,6 +62,10 @@ def transcribe_all(files: list[Path], edit_dir: Path, language: str | None = "pt
                                                  prompt=prompt)
             print(f"  {video.name}: {status}", flush=True)
         failed = []
+    elif failed:
+        print(f"  {len(failed)} file(s) not transcribed: {', '.join(f.name for f in sorted(failed))}\n"
+              "  Not sent to local Whisper on purpose (it takes about as long as the footage).\n"
+              "  The mediacript error of each file is printed above: fix that and run again.", flush=True)
 
     print(f"transcripts done in {time.time() - t0:.0f}s -> {edit_dir / 'transcripts'}", flush=True)
     return failed

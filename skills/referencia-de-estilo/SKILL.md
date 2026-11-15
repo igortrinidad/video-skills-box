@@ -31,7 +31,7 @@ Gere o `estilo.md` **na pasta onde a referência está** (compartilhada ou `refs
 
 1. **Já existe `estilo.md`?** Se existir e as referências não mudaram, reutilize — não reanalise. Também verifique `~/.claude/skills/referencia-de-estilo/estilos/` se o usuário citar um estilo pelo nome ("usa o estilo do episódio 22").
 
-2. **Medir.** A transcrição usa o `video-toolkit` (Groq, rápido; cai para Whisper local se falhar, e aí demora — nesse caso rode em segundo plano; se parar com `MISSING_API_KEY`, veja "Sem chave do Groq" no SKILL.md do `video-toolkit`). A detecção de cortes e o contact sheet levam alguns minutos em vídeos longos:
+2. **Medir.** A transcrição usa o `video-toolkit` (Groq, rápido, sem processar na máquina; se parar com `MISSING_API_KEY` ou com `transcription failed`, veja "Sem chave do Groq" e "Se o mediacript falhar" no SKILL.md do `video-toolkit`; `--no-transcribe` mede o resto sem as métricas de fala). A detecção de cortes e o contact sheet levam alguns minutos em vídeos longos:
    ```
    python ~/.claude/skills/referencia-de-estilo/scripts/analyze_video.py <pasta_referencia>
    ```
