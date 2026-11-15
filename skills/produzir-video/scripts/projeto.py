@@ -29,18 +29,17 @@ import json
 import re
 import shutil
 import sys
-import unicodedata
 from datetime import datetime
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "video-toolkit"))
 from videokit.media import MEDIA_EXTS  # noqa: E402
+from videokit.knowledge import find_kb, is_kb  # noqa: E402
+from videokit.project import RAW_ALIASES, find_alias, load_config, norm, save_config  # noqa: E402
 
-CONFIG = Path.home() / ".config" / "video-skills" / "config.json"
 IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg", ".psd"}
 MOTION_EXTS = {".mov", ".webm", ".mp4", ".json", ".lottie", ".gif", ".html", ".mogrt", ".aep"}
 
-RAW_ALIASES = ["raw", "material_bruto", "material bruto", "brutos", "bruto"]
 REFS_ALIASES = ["refs", "referencia", "referencias"]
 ASSETS_ALIASES = ["assets", "asset", "imagens", "arquivos"]
 # category -> keywords matched against the normalized folder name (first match wins)
@@ -54,22 +53,9 @@ REF_CATEGORIES = {
 SKIP_DIRS = {"_analise", "__pycache__", ".git"}
 
 
-def norm(s: str) -> str:
-    s = unicodedata.normalize("NFD", s.lower())
-    return "".join(c for c in s if unicodedata.category(c) != "Mn").strip()
-
-
 def dump(obj) -> None:
     sys.stdout.reconfigure(encoding="utf-8")
     print(json.dumps(obj, ensure_ascii=False, indent=2))
-
-
-def find_alias(folder: Path, aliases: list[str]) -> Path | None:
-    by_name = {norm(p.name): p for p in folder.iterdir() if p.is_dir()}
-    for a in aliases:
-        if a in by_name:
-            return by_name[a]
-    return None
 
 
 def is_project(folder: Path) -> bool:
@@ -114,14 +100,13 @@ def scan_references(ref_root: Path) -> dict:
 
 
 def cmd_raiz(args) -> None:
-    cfg = json.loads(CONFIG.read_text(encoding="utf-8")) if CONFIG.exists() else {}
+    cfg = load_config()
     if args.set:
         root = Path(args.set).expanduser().resolve()
         if not root.is_dir():
             sys.exit(f"pasta não encontrada: {root}")
         cfg["raiz"] = str(root)
-        CONFIG.parent.mkdir(parents=True, exist_ok=True)
-        CONFIG.write_text(json.dumps(cfg, ensure_ascii=False, indent=2), encoding="utf-8")
+        save_config(cfg)
     raiz = cfg.get("raiz")
     dump({"raiz": raiz, "existe": bool(raiz and Path(raiz).is_dir())})
 
@@ -132,6 +117,8 @@ def cmd_scan(args) -> None:
         sys.exit(f"pasta não encontrada: {root}")
     refs, projects = [], []
     for sub in sorted(p for p in root.iterdir() if p.is_dir() and not p.name.startswith(".")):
+        if is_kb(sub):
+            continue
         if "referenc" in norm(sub.name) and not is_project(sub):
             refs.append(scan_references(sub))
         else:
@@ -147,7 +134,9 @@ def cmd_scan(args) -> None:
                 "finais": sorted(p.name for p in final.iterdir()) if final.is_dir() else [],
                 "fora_do_padrao": raw is None or norm(raw.name) != "raw",
             })
-    dump({"raiz": str(root), "referencias_gerais": refs, "projetos": projects})
+    kb = find_kb(root)
+    dump({"raiz": str(root), "base_conhecimento": str(kb) if kb else None,
+          "referencias_gerais": refs, "projetos": projects})
 
 
 def cmd_init(args) -> None:
@@ -162,8 +151,10 @@ def cmd_init(args) -> None:
     (proj / "final").mkdir(exist_ok=True)
     refs = find_alias(proj, REFS_ALIASES)
     raw_files = sorted(p.name for p in raw.iterdir() if p.is_file() and p.suffix.lower() in MEDIA_EXTS) if raw else []
+    kb = find_kb(proj)
     dump({
-        "projeto": str(proj), "raw": str(raw) if raw else None, "raw_arquivos": raw_files,
+        "projeto": str(proj), "base_conhecimento": str(kb) if kb else None,
+        "raw": str(raw) if raw else None, "raw_arquivos": raw_files,
         "midia_solta_na_raiz_do_projeto": loose,
         "assets": str(assets), "assets_arquivos": files_in(assets, proj),
         "refs": str(refs) if refs else None, "refs_estilo": str(refs / "estilo.md") if refs and (refs / "estilo.md").exists() else None,

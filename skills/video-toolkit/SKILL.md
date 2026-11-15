@@ -18,7 +18,7 @@ python ~/.claude/skills/video-toolkit/scripts/transcribe.py <pasta_ou_video> --e
 - Saída: `<edit>/transcripts/<nome>.json`, formato Scribe (`words[]` com `type` word|spacing, `start`, `end`, `text`, `speaker_id`). `pack_transcripts.py`, `timeline_view.py` e `render.py` da video-use leem direto.
 - `--engine auto` (padrão): mediacript na nuvem (Groq whisper-large-v3, 3 arquivos em paralelo; ~1 min para 57 min de fala). O que falhar (sem rede, cota, erro do provedor) cai sozinho para o Whisper local (`--whisper-model small`, CPU, lento). `--engine whisper` força só local; `--engine mediacript` falha em vez de cair.
 - O áudio vai em pedaços de no máximo 10 MB cortados em pausas, e trechos com som que voltaram vazios são reenviados.
-- O prompt padrão (`--prompt`) mantém muletas ("é", "né", "tipo") e "pato amarelo" escritos literalmente. `--prompt ""` desliga.
+- O prompt padrão (`--prompt`) mantém muletas ("é", "né", "tipo") e "pato amarelo" escritos literalmente. `--prompt ""` desliga. Nomes próprios no prompt fazem o reconhecedor acertar a grafia: a `context-extractor` acrescenta sozinha os nomes da base de conhecimento.
 - Cache por arquivo: transcrição existente nunca é refeita (apague o JSON para refazer).
 - Precisa de `node` e `ffmpeg` no PATH. O mediacript roda via `npx mediacript@^1.2.42` (baixado e guardado em cache no primeiro uso). Se existir o clone em `~/code/mediacript/packages/cli/cli.mjs`, ele tem prioridade (útil para testar mudanças não publicadas); `MEDIACRIPT_CLI=<caminho do cli.mjs>` força outro.
 
@@ -46,4 +46,6 @@ Pacote `videokit/` (importe com `sys.path.insert(0, str(Path(__file__).resolve()
 - `videokit.media`: `VIDEO_EXTS`, `MEDIA_EXTS`, `list_media`, `run`, `capture`, `probe`, `probe_fps`, `extract_audio`, `srt_ts`.
 - `videokit.transcript`: `DEFAULT_PROMPT`, `scribe_words`, `write_transcript`, `load_words`, `transcript_path`, `count_words`.
 - `videokit.transcribe.transcribe_all`: pipeline mediacript → Whisper local (levanta `MissingKeyError` sem chave).
+- `videokit.project`: convenções da pasta de projetos. `load_config`/`save_config` (`~/.config/video-skills/config.json`), `norm` (minúsculas sem acento), `find_alias`, `raw_dir(projeto)`, `reference_dirs(projeto)` (pastas "Referencias gerais" que valem para o projeto).
+- `videokit.knowledge`: base de conhecimento (formato na skill `knowledge-base`). `find_kb(pasta)`, `load_entries(kb)`, `resolve(entries, nome)` (ficha pelo nome, apelido ou grafia errada), `canonical`, `label_status`, `spot(entries, texto)` (nomes conhecidos dentro de um texto), `terms`, `prompt_terms` (nomes para o prompt da transcrição), `pick_profile`, `digest(kb, profile, with_profile)`, `split_frontmatter`.
 - `videokit.cli.run_main(main)`: use no `if __name__ == "__main__"` de scripts que transcrevem, para sair com código 3 e a mensagem `MISSING_API_KEY` em vez de um traceback.

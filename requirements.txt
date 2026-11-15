@@ -1,4 +1,5 @@
 numpy
 pillow
+pyyaml
 yt-dlp
 faster-whisper  # only for the local transcription fallback

@@ -9,10 +9,16 @@ skills/
 ├── video-toolkit/            ← compartilhado por todas as skills
 │   ├── SKILL.md              ← transcrição avulsa + referência das ferramentas
 │   ├── scripts/transcribe.py ← CLI de transcrição (Groq via mediacript → Whisper local)
-│   ├── videokit/             ← pacote Python comum (ffmpeg/ffprobe, transcrição, formato Scribe)
+│   ├── videokit/             ← pacote Python comum (ffmpeg/ffprobe, transcrição, formato Scribe, pastas de projeto, base de conhecimento)
 │   └── assets/               ← fontes, logos, músicas, sfx, LUTs, overlays
 ├── produzir-video/           ← porta de entrada: raiz de projetos, Referências gerais, tipo de vídeo, entrega em final/
 │   └── scripts/projeto.py    ← raiz / scan / init / entregar
+├── knowledge-base/           ← pessoas, empresas e perfis de conteúdo, compartilhados por todos os projetos
+│   └── scripts/kb.py         ← where / init / find / add / check / digest
+├── context-extractor/        ← pasta de clips brutos → insight por clip + catálogo cronológico (edit/context/)
+│   └── scripts/context.py    ← prepare / status / labels / catalog
+├── content-explorer/         ← material catalogado → vídeos propostos, aprovação, fila de produção e status (edit/explore/)
+│   └── scripts/explore.py    ← status / start / material / new / check / set / reset
 ├── editar-video-youtube/     ← bruto → final.mp4 (camada de preferências sobre a video-use)
 ├── cortes-verticais/         ← final.mp4 → shorts 9:16
 │   └── scripts/              ← make_short.py, remap_transcript.py
@@ -34,6 +40,20 @@ Regras para manter o repositório organizado:
   Funciona no repositório e instalado em `~/.claude/skills`, porque as skills ficam sempre lado a lado.
 - **Assets compartilhados em `skills/video-toolkit/assets/`** (convenções em `assets/README.md`). O toolkit é uma skill para que os assets e o código sejam instalados junto com as outras.
 - Nos `SKILL.md`, referencie caminhos instalados (`~/.claude/skills/<skill>/...`).
+- Skills novas são escritas em inglês (nome, `SKILL.md`, scripts) e conversam com o usuário na língua dele. O que precisa ser decidido sempre do mesmo jeito (estado, validação, nomes de arquivo) fica no script, que responde em JSON com um campo `next`; assim modelos menores conseguem seguir o fluxo.
+
+## Do material bruto aos vídeos
+
+```
+knowledge-base ──┐  quem é quem, grafia dos nomes, direção de conteúdo do perfil
+                 ▼
+raw/ ─► context-extractor ─► content-explorer ─► produzir-video ─► final/
+        o que há em cada      quais vídeos fazer;   edita um vídeo
+        clip (edit/context)   espera aprovação      (editar-video-youtube,
+                              (edit/explore)         cortes-verticais)
+```
+
+Cada etapa grava o que fez no projeto e pode ser retomada: `context.py status` e `explore.py status` dizem onde parou.
 
 ## Pasta de projetos (onde ficam os vídeos)
 
@@ -45,11 +65,18 @@ Regras para manter o repositório organizado:
 │   ├── Assets/                      ← logos, imagens, prints usados em vários vídeos
 │   ├── Sons/
 │   └── Motions/
+├── Base de conhecimento/            ← editável à mão; criada com `kb.py init <raiz>`
+│   ├── pessoas/  empresas/          ← uma ficha .md por pessoa / empresa, produto, evento
+│   ├── perfis/                      ← direção de conteúdo de cada perfil
+│   └── termos.md                    ← outras palavras que a transcrição erra
 └── <Projeto>/
     ├── raw/      ← bruto (somente leitura)
     ├── assets/   ← imagens, prints, logos deste projeto (somente leitura)
     ├── refs/     ← opcional
     ├── edit/     ← tudo o que é gerado
+    │   ├── transcripts/   ← transcrições por palavra, compartilhadas
+    │   ├── context/       ← context-extractor: clips/<clip>.md, catalog.md, timeline.md
+    │   └── explore/       ← content-explorer: videos/<ID>-<slug>.md (plano + status), overview.md
     └── final/    ← "AAAA-MM-DD_HHMM - Título.mp4"
 ```
 

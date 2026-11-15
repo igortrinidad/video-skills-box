@@ -20,6 +20,9 @@ Esta skill organiza **onde** as coisas ficam e **qual** skill faz cada parte. O 
 │   ├── Assets/                           ← logos, imagens, prints, fotos usados em vários vídeos (ex.: logo do canal)
 │   ├── Sons/                             ← trilhas, vinhetas, sfx
 │   └── Motions/                          ← transições, animações, overlays com alfa
+├── Base de conhecimento/                 ← qualquer nome com "conhecimento"/"knowledge"; vale para todos os projetos
+│   ├── pessoas/  empresas/               ← quem é quem e como se escreve cada nome (skill `knowledge-base`)
+│   └── perfis/                           ← direção de conteúdo de cada perfil (público, tom, CTAs, identidade visual)
 └── <Projeto>/                            ← ex.: Visita Beleza Completa Betim 03-11
     ├── raw/                              ← material bruto (NUNCA alterar, mover ou renomear)
     ├── assets/                           ← imagens, prints, logos, PDFs só deste projeto (ex.: logo da empresa visitada)
@@ -28,6 +31,8 @@ Esta skill organiza **onde** as coisas ficam e **qual** skill faz cada parte. O 
     │   ├── project.md                    ← memória do projeto (ler ao retomar; atualizar ao terminar)
     │   ├── briefing.md                   ← pedido + direções do usuário + assets escolhidos
     │   ├── transcripts/  takes_packed.md  edl.json  analise.md  verify/ …
+    │   ├── context/                      ← catálogo do material (skill `context-extractor`): clips/, catalog.md, timeline.md
+    │   ├── explore/                      ← vídeos planejados e o status de cada um (skill `content-explorer`)
     │   ├── <tipo>-<slug>/                ← quando houver mais de uma peça no projeto (ex.: reels-guardrails/)
     │   └── shorts/                       ← cortes verticais
     └── final/                            ← só entregáveis: "AAAA-MM-DD_HHMM - Título do vídeo.mp4"
@@ -42,9 +47,12 @@ Apelidos aceitos (projetos antigos): `material_bruto`/`brutos` = `raw`; `referen
 
 2. **Inventário.** `projeto.py scan <raiz>` lista as referências gerais por categoria e os projetos. Identifique o projeto pelo nome citado (aceite aproximações: "a da Beleza Completa"). Se houver ambiguidade, pergunte junto com o passo 4.
 
-3. **Preparar o projeto.** `projeto.py init <pasta_do_projeto>` cria `assets/`, `edit/` e `final/` e devolve onde estão `raw/`, `assets/` (com a lista de arquivos), `refs/`, `estilo.md` e `project.md`. Se existir `edit/project.md`, leia e retome dali.
+3. **Preparar o projeto.** `projeto.py init <pasta_do_projeto>` cria `assets/`, `edit/` e `final/` e devolve onde estão `raw/`, `assets/` (com a lista de arquivos), `refs/`, `estilo.md`, `project.md` e a base de conhecimento (`base_conhecimento`). Se existir `edit/project.md`, leia e retome dali.
+   - **Base de conhecimento.** Se `base_conhecimento` não for `null`, rode `python ~/.claude/skills/knowledge-base/scripts/kb.py digest --from <pasta_do_projeto>` e leia: nomes de pessoas e empresas com a grafia certa, restrições (`[publish: ask]` = perguntar antes de publicar; `[publish: avoid]` = não usar) e, no fim, a direção de conteúdo do perfil (público, tom, temas, fazer/evitar, CTAs, identidade visual). Se a direção vier marcada como rascunho (`draft`), trate como hipótese e confirme com o usuário no passo 4. Com vários perfis e nenhum padrão, pergunte para qual perfil é o vídeo.
+   - **Material já catalogado.** Se existir `edit/context/catalog.md`, leia `edit/context/timeline.md` e o catálogo antes de abrir os brutos: eles dizem o que há em cada clip e onde estão os melhores momentos. Projeto com dezenas de clips e sem catálogo: rode antes a skill `context-extractor`.
+   - **Vídeo planejado.** Se o pedido citar um vídeo do `content-explorer` ("produz o V03") ou existir `edit/explore/videos/`, o plano desse vídeo (`edit/explore/videos/<ID>-*.md`) é o pedido: siga a estrutura, os trechos e os riscos dele, trabalhe na pasta indicada em `workdir` e atualize o status como a skill `content-explorer` manda (passo 7 dela). Só produza vídeos com `status: approved` ou `producing`.
 
-4. **Briefing.** Junte o pedido em `edit/briefing.md`: tipo, título provisório, duração alvo, público/plataforma, empresa/marca (cores), direções do usuário ("abre com o fulano", "sem música", "destaque o número X"), referência escolhida e assets escolhidos. Pergunte **uma única vez, tudo junto**, só o que for ambíguo e mudar o resultado (ex.: tipo não informado, cores da empresa sem logo em `refs/`). O resto, decida e registre no briefing.
+4. **Briefing.** Junte o pedido em `edit/briefing.md` (ou `edit/<tipo>-<slug>/briefing.md` quando houver mais de uma peça): tipo, título provisório, duração alvo, perfil e público/plataforma, empresa/marca (cores), direções do usuário ("abre com o fulano", "sem música", "destaque o número X"), o que a direção de conteúdo do perfil pede (tom, o que evitar, CTA), referência escolhida e assets escolhidos. Pergunte **uma única vez, tudo junto**, só o que for ambíguo e mudar o resultado (ex.: tipo não informado, cores da empresa sem logo em `refs/`). O resto, decida e registre no briefing.
 
 5. **Referência de estilo.** Ordem de prioridade: `refs/` do projeto → `Videos de referencia/<Tipo>/` que bate com o tipo pedido → estilos salvos em `~/.claude/skills/referencia-de-estilo/estilos/` → padrões da skill de execução. Se a referência ainda não tem `estilo.md`, rode a `referencia-de-estilo` **apontando para a pasta da referência** (o `estilo.md` e `_analise/` ficam lá e servem para os próximos projetos), em segundo plano junto com a transcrição.
 
@@ -91,7 +99,7 @@ HASHTAGS
 ```
 
 - **Título:** até ~60 caracteres no YouTube, sem clickbait que o vídeo não entrega; as opções exploram ângulos diferentes (curiosidade, resultado, pessoa/lugar).
-- **Legenda/descrição:** 2–4 parágrafos curtos para YouTube (o que acontece, quem aparece, contexto da marca, CTA com link se o briefing tiver); 1–3 frases + CTA leve para Reels/Shorts/TikTok. Cite pessoas e empresas pelo nome como aparecem no briefing.
+- **Legenda/descrição:** 2–4 parágrafos curtos para YouTube (o que acontece, quem aparece, contexto da marca, CTA com link se o briefing tiver); 1–3 frases + CTA leve para Reels/Shorts/TikTok. Cite pessoas e empresas com a grafia da base de conhecimento (a transcrição erra nomes próprios; o mesmo vale para placas e legendas queimadas). CTAs, `@` e links vêm do perfil na base de conhecimento.
 - **Capítulos:** só em vídeo longo (YouTube), a partir dos timestamps do vídeo final; começa em `00:00` e cada capítulo tem ≥10 s. Omita a seção em vertical.
 - **Hashtags:** 3–5 no YouTube, 5–10 em Reels/TikTok; misture marca, nicho e local. Sem hashtags genéricas demais (#video, #fyp) a menos que o usuário peça.
 - Escreva em português do Brasil, no tom do briefing. Se faltar informação (link, @ da empresa), deixe `<preencher: ...>` em vez de inventar.
@@ -134,3 +142,6 @@ Se o usuário pedir mais de uma peça do mesmo projeto, cada uma ganha sua subpa
 - `final/` só recebe entregáveis aprovados pelo fluxo (render final, não preview).
 - `timeline_view.py` procura a transcrição em `<pasta do vídeo>/edit/`; como os brutos ficam em `raw/`, passe `--transcript <projeto>/edit/transcripts/<nome>.json` e `-o <projeto>/edit/verify/<arquivo>.png`.
 - Não espere confirmação a cada passo: depois do briefing, vá até o fim (preferência do usuário).
+- Nomes próprios em placas, legendas, títulos e `info.txt` seguem a base de conhecimento. Nome que não está lá: `kb.py find`, e se não existir, pesquise e cadastre como a skill `knowledge-base` descreve, em vez de confiar na transcrição.
+- Pessoa ou empresa marcada `publish: avoid` não entra no vídeo; `publish: ask` exige a confirmação do usuário antes de entregar.
+- Quando o usuário quer saber **quais** vídeos fazer com o material (e não um vídeo específico), use a skill `content-explorer` antes desta.
