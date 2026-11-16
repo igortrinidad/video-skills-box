@@ -2,4 +2,6 @@ numpy
 pillow
 pyyaml
 yt-dlp
+torch  # audio-moments (sound-event model, CPU is enough)
+panns-inference  # audio-moments
 faster-whisper  # only for local transcription (--engine whisper / auto), never used by default

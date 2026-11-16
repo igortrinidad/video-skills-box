@@ -46,6 +46,7 @@ Run the steps in order. `context.py status <project>` tells where a project stan
    - `transcripts_missing` not empty in the status: those clips failed in mediacript, and the reason of each is printed above the status (`<clip>: mediacript failed: ...`). Run `prepare` once more, since a network or quota hiccup usually clears. If the same clips fail again, tell the user the clip names and the error text so mediacript can be fixed, and go on with the other clips. Do not write insights for the clips without a transcript; they are picked up by a later `prepare`.
    - DJI proxies (`.LRF` next to the `.MP4`) are used for the frames and audio levels when present; it is much faster on large shoots.
    - `"knowledge": {"base": null}` in the status means no knowledge base was found. Ask the user once whether to create it (`kb.py init <projects root>`), then run `prepare` again.
+   - Then run `python ~/.claude/skills/audio-moments/scripts/moments.py scan <project>` (local, ~1 min per 15 min of footage; run it in the background on large shoots). It hears what the transcript loses: applause, cheering, laughter, shouting, chants. See `~/.claude/skills/audio-moments/SKILL.md`. Its rows for each clip go into the step 4 brief.
 
 2. **Learn who is who.** Read `edit/context/knowledge.md`, `edit/context/glossary.md` if it exists, `edit/briefing.md` if it exists, and anything the user said about who and what was filmed. Then, for everything the user said that the knowledge base lacks (who filmed, partners, companies, the event), add or update the entries as the `knowledge-base` skill describes ("When the user tells you something") and run `prepare` again so the digest and the worksheets pick it up.
 
@@ -148,6 +149,10 @@ For each clip read:
   - <project>/edit/context/work/<clip>.md    metadata, the names already recognized, the transcript with time ranges
   - <project>/edit/context/frames/<clip>.jpg contact sheet; look at it, every frame is labelled with its time
 Context from the user: <who filmed, what the event is, what the people likely to appear wear in this shoot>
+Sound moments (from audio-moments; the transcript does not show them): <the rows of edit/moments/moments.md
+  for these clips, or "none">. Each one that the transcript and the frames support goes into the clip's Moments,
+  marked "(sound)" with what the room did and why (e.g. "(sound) applause right after 'tem que meter a cara'").
+  A strong one is a reason to raise the clip's value.
 
 Rules:
   - Read all the clips of the batch before writing, because consecutive clips are often one scene.

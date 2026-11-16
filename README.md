@@ -17,6 +17,8 @@ skills/
 │   └── scripts/kb.py         ← where / init / find / add / check / digest
 ├── context-extractor/        ← pasta de clips brutos → insight por clip + catálogo cronológico (edit/context/)
 │   └── scripts/context.py    ← prepare / status / labels / catalog
+├── audio-moments/            ← palmas, gritos, risadas, comemorações: momentos que a transcrição perde (edit/moments/)
+│   └── scripts/moments.py    ← setup / scan / report / status (modelo de som local, sem nuvem)
 ├── content-explorer/         ← material catalogado → vídeos propostos, aprovação, fila de produção e status (edit/explore/)
 │   └── scripts/explore.py    ← status / start / material / new / check / set / reset
 ├── editar-video-youtube/     ← bruto → final.mp4 (camada de preferências sobre a video-use)
@@ -97,6 +99,7 @@ Se já houver uma pasta de skill com o mesmo nome, ela é movida para `~/.claude
 
 - Python ≥ 3.10: `pip install -r requirements.txt`
 - `ffmpeg`/`ffprobe` e `node` no PATH
+- `audio-moments`: `torch` e `panns-inference` (no `requirements.txt`) e o modelo PANNs Cnn14 (~330 MB em `~/panns_data/`, baixado por `moments.py setup`). Roda na CPU, ~1 min por 15 min de vídeo.
 - [yt-dlp](https://github.com/yt-dlp/yt-dlp) (instalado pelo `requirements.txt`), usado pela `video-to-code` para baixar do YouTube. Mantenha atualizado (`pip install -U yt-dlp`): o YouTube muda com frequência.
 - [video-use](https://github.com/browser-use/video-use) clonada em `~/.claude/skills/video-use` (`pack_transcripts.py`, `timeline_view.py`, `render.py`). É de terceiros (MIT) e não é copiada para cá.
 - [SFX Kit](https://github.com/wyzowl/sfx-kit) (CC0), efeitos sonoros usados pela `produzir-video`: clonado sob demanda em `~/.cache/video-skills/sfx-kit` (~67 MB), fora do repositório.
