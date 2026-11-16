@@ -35,7 +35,8 @@ Esta skill organiza **onde** as coisas ficam e **qual** skill faz cada parte. O 
     │   ├── explore/                      ← vídeos planejados e o status de cada um (skill `content-explorer`)
     │   ├── <tipo>-<slug>/                ← quando houver mais de uma peça no projeto (ex.: reels-guardrails/)
     │   └── shorts/                       ← cortes verticais
-    └── final/                            ← só entregáveis: "AAAA-MM-DD_HHMM - Título do vídeo.mp4"
+    └── final/NN-<short|long> AAAA-MM-DD <Título>/   ← uma pasta por vídeo (ex.: "01-short 2026-11-15 Peguei o microfone…"); NN = ordem de criação no projeto,
+                                            data = dia da 1ª entrega. Só entregáveis: "AAAA-MM-DD_HHMM - Título do vídeo.mp4"; versões novas ficam na mesma pasta
                                             + "AAAA-MM-DD_HHMM - Título do vídeo - info.txt" (título, legenda, hashtags)
 ```
 
@@ -68,8 +69,8 @@ Apelidos aceitos (projetos antigos): `material_bruto`/`brutos` = `raw`; `referen
 8. **info.txt.** Para cada vídeo, escreva `edit/info.txt` (ou `edit/<tipo>-<slug>/info.txt`) com o formato da seção "info.txt", baseado no que realmente ficou no corte final (releia o `edl.json`/transcrição, não o bruto).
 
 9. **Entregar.** Para cada vídeo pronto:
-   `projeto.py entregar <edit/.../final.mp4> --projeto <pasta_do_projeto> --titulo "<Título do vídeo>" --info <edit/.../info.txt>`
-   Move para `final/AAAA-MM-DD_HHMM - Título.mp4` e copia o info para `final/AAAA-MM-DD_HHMM - Título - info.txt` (data/hora do momento da entrega; caracteres inválidos saem; nomes repetidos ganham `(2)` nos dois). Use `--copiar` se a skill de execução ainda precisar do arquivo em `edit/` (ex.: `cortes-verticais` depois do vídeo longo).
+   `projeto.py entregar <edit/.../final.mp4> --projeto <pasta_do_projeto> --titulo "<Título do vídeo>" --formato short|long --info <edit/.../info.txt>`
+   Na primeira entrega o script cria a pasta do vídeo `final/NN-<formato> AAAA-MM-DD <Título>/` (NN = próximo número da sequência do projeto, com dois dígitos; data do dia), move o vídeo para `AAAA-MM-DD_HHMM - Título.mp4` dentro dela e copia o info para `AAAA-MM-DD_HHMM - Título - info.txt`. Assim as pastas ficam em ordem cronológica e dá para ver o que já foi revisado. Na refação o script reaproveita a pasta com o mesmo título; se o título mudou, passe `--pasta "<nome da pasta existente>"` (está no `final` do plano ou no `project.md`). O número e a data da pasta nunca mudam. A saída JSON traz `pasta` (o nome da pasta); registre-o no `project.md`. Caracteres inválidos saem; nomes repetidos ganham `(2)` nos dois. Use `--copiar` se a skill de execução ainda precisar do arquivo em `edit/` (ex.: `cortes-verticais` depois do vídeo longo).
 
 10. **Fechar.** Atualize `edit/project.md` (estado, decisões, assets usados, arquivos em `final/`) e responda com: arquivos entregues, duração, título escolhido, referência e assets usados, e dúvidas.
 
@@ -141,7 +142,8 @@ Se o usuário pedir mais de uma peça do mesmo projeto, cada uma ganha sua subpa
 - `raw/` e `assets/` são somente leitura. Caminhos no `edl.json` relativos a `edit/` (ex.: `"../raw/DJI_0246.MP4"`).
 - `final/` só recebe entregáveis aprovados pelo fluxo (render final, não preview).
 - `timeline_view.py` procura a transcrição em `<pasta do vídeo>/edit/`; como os brutos ficam em `raw/`, passe `--transcript <projeto>/edit/transcripts/<nome>.json` e `-o <projeto>/edit/verify/<arquivo>.png`.
-- Não espere confirmação a cada passo: depois do briefing, vá até o fim (preferência do usuário).
+- Não espere confirmação a cada passo: depois do briefing, vá até o fim do vídeo (preferência do usuário).
+- Vários vídeos (fila do `content-explorer` ou pedido de várias peças): **um por vez**. Entregou um, pare, mostre e espere o feedback; ajustes são refeitos na mesma pasta de `edit/` e entregues na mesma pasta de `final/` (`--pasta`). Só passe para o próximo quando o usuário aprovar ou mandar seguir. Feedback que vale para todos vai para os "Padrões" do `edit/project.md`.
 - Nomes próprios em placas, legendas, títulos e `info.txt` seguem a base de conhecimento. Nome que não está lá: `kb.py find`, e se não existir, pesquise e cadastre como a skill `knowledge-base` descreve, em vez de confiar na transcrição.
 - Pessoa ou empresa marcada `publish: avoid` não entra no vídeo; `publish: ask` exige a confirmação do usuário antes de entregar.
 - Quando o usuário quer saber **quais** vídeos fazer com o material (e não um vídeo específico), use a skill `content-explorer` antes desta.

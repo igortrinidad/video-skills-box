@@ -12,14 +12,15 @@
         ├── assets/   project-only images, prints, logos (aliases: imagens, arquivos)
         ├── refs/     project-only references (aliases: referencia, referencias)
         ├── edit/     everything the skills generate
-        └── final/    deliverables: "YYYY-MM-DD_HHMM - Titulo.ext"
+        └── final/NN-formato YYYY-MM-DD Titulo/   one folder per video, NN = creation order:
+                      "YYYY-MM-DD_HHMM - Titulo.ext" (+ info.txt), versions side by side
 
 Usage:
     python projeto.py raiz                       # last root used (JSON)
     python projeto.py raiz --set <pasta>
     python projeto.py scan <raiz>                # references + projects (JSON)
     python projeto.py init <pasta_projeto>       # resolve/create raw, assets, refs, edit, final (JSON)
-    python projeto.py entregar <arquivo> --projeto <pasta> --titulo "Titulo" [--info info.txt] [--copiar] [--quando ISO]
+    python projeto.py entregar <arquivo> --projeto <pasta> --titulo "Titulo" --formato short|long [--pasta "Pasta"] [--info info.txt] [--copiar] [--quando ISO]
 """
 
 from __future__ import annotations
@@ -168,13 +169,35 @@ def safe_title(title: str) -> str:
     return re.sub(r"\s+", " ", t)[:120] or "video"
 
 
+FOLDER_RE = re.compile(r"^(\d+)-(\w+) (\d{4}-\d{2}-\d{2}) (.+)$")
+
+
+def video_folder(root: Path, title: str, formato: str, when: datetime, pasta: str | None) -> Path:
+    """Folder of one video inside final/: "NN-formato AAAA-MM-DD Título".
+
+    NN is the creation order in the project. A redo goes into the folder it already has:
+    --pasta names it, otherwise an existing folder with the same title is reused.
+    """
+    if pasta:
+        return root / safe_title(pasta)
+    folders = [p for p in root.iterdir() if p.is_dir()] if root.is_dir() else []
+    for p in folders:
+        m = FOLDER_RE.match(p.name)
+        if m and m.group(4) == safe_title(title):
+            return p
+    used = [int(m.group(1)) for p in folders if (m := FOLDER_RE.match(p.name))]
+    n = max(used, default=0) + 1
+    return root / f"{n:02d}-{formato} {when:%Y-%m-%d} {safe_title(title)}"
+
+
 def cmd_entregar(args) -> None:
     src = Path(args.arquivo).expanduser().resolve()
     if not src.is_file():
         sys.exit(f"arquivo não encontrado: {src}")
-    final = Path(args.projeto).expanduser().resolve() / "final"
-    final.mkdir(parents=True, exist_ok=True)
     when = datetime.fromisoformat(args.quando) if args.quando else datetime.now()
+    final = video_folder(Path(args.projeto).expanduser().resolve() / "final",
+                         args.titulo, args.formato, when, args.pasta)
+    final.mkdir(parents=True, exist_ok=True)
     info = Path(args.info).expanduser().resolve() if args.info else None
     if info and not info.is_file():
         sys.exit(f"info não encontrado: {info}")
@@ -185,7 +208,7 @@ def cmd_entregar(args) -> None:
         n += 1
     dest = final / f"{stem}{src.suffix.lower()}"
     (shutil.copy2 if args.copiar else shutil.move)(str(src), str(dest))
-    res = {"entregue": str(dest)}
+    res = {"pasta": final.name, "entregue": str(dest)}
     if info:
         info_dest = final / f"{stem} - info.txt"
         shutil.copy2(str(info), str(info_dest))
@@ -203,6 +226,9 @@ def main() -> None:
     p.add_argument("arquivo"); p.add_argument("--projeto", required=True); p.add_argument("--titulo", required=True)
     p.add_argument("--copiar", action="store_true", help="copia em vez de mover")
     p.add_argument("--quando", help="data/hora ISO (padrão: agora)")
+    p.add_argument("--formato", required=True, choices=["short", "long"], help="entra no nome da pasta")
+    p.add_argument("--pasta", help="pasta já existente do vídeo em final/ (refação com título novo); "
+                                   "padrão: 'NN-formato AAAA-MM-DD Título', reaproveitando a do mesmo título")
     p.add_argument("--info", help="info.txt (título, legenda, hashtags) entregue ao lado do vídeo")
     p.set_defaults(fn=cmd_entregar)
     args = ap.parse_args()

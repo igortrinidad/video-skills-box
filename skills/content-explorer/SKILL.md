@@ -174,10 +174,12 @@ Videos the user did not mention stay `proposed`; they can be approved later.
 
 1. `explore.py set <project> <ID> --status producing --workdir edit/<format>-<id>-<slug>` (for example `edit/short-v03-pitch-ao-vivo`).
 2. Read `~/.claude/skills/produzir-video/SKILL.md` and follow it, with this video's plan as the request. Write its `briefing.md` inside the workdir from the plan: title, format (`short` → "Reels / Shorts direto do bruto", `long` → "Vlog / YouTube longo"), target duration, the structure with the clip ranges, hook, on-screen elements, risks to respect, the profile's content direction and visual identity from `knowledge.md`, and the references folder saved in the session (`status` → `references.chosen`). The sources are the files under `raw/` named in `## Structure`; transcripts in `edit/transcripts/` already exist.
-3. When `produzir-video` delivers the file to `final/`: `explore.py set <project> <ID> --status review --final "final/<file name>"`.
+3. **Each video has its own folder in `final/`**, so one video can be redone without touching the others. The folder is named `NN-<short|long> AAAA-MM-DD <Title>` (`NN` = creation order in the project, two digits; the date of the first delivery), so the folders sort in chronological order and it is easy to see which ones were already reviewed. The first delivery creates it: `projeto.py entregar ... --titulo "<Title>" --formato <short|long>` (the JSON output gives the folder name in `pasta`). When the video already has a `final` (a redo), pass `--pasta "<the folder written there>"`, even if the title changed: the number and date stay, the new version goes next to the old ones, nothing is deleted. Then: `explore.py set <project> <ID> --status review --final "final/<Folder>/<file name>"`.
 4. If production stops halfway (error, missing asset, a question only the user can answer), leave the status `producing`, write what happened with `set <ID> --note "..."`, and tell the user. On resume, the video's `## Log` and its workdir say where it stopped.
 
-**Pilot first.** The first video of each format is a pilot: after delivering it, stop, show it to the user and ask what to change in the style (subtitles, pace, plates, music) before producing the rest. Write the answer into the profile ("Formatos que funcionam", "Identidade visual") or the session notes so the next videos follow it. After the pilot is accepted, continue through the queue without stopping at each video.
+**One video at a time, with feedback.** After delivering each video, stop: tell the user the file, the duration and what was decided, and wait for their feedback before starting the next one. The video just made is still in context, so changes are cheap: redo it in the same workdir (`build.py` or equivalent re-renders everything), deliver the new version into the same `final/<Folder>/`, and ask again. Move on only when the user accepts it (`--status delivered`) or says to go to the next one. Feedback that applies to every video (subtitles, pace, plates, music, sounds) is written into the profile ("Formatos que funcionam", "Identidade visual") or `edit/project.md` ("Padrões") so the next videos follow it from the start. Only run through the queue without stopping if the user explicitly asks for it ("faz todos de uma vez").
+
+**Pilot first.** The first video of each format is a pilot: take extra care to ask about the style before the rest of that format.
 
 ### 8. Review and close
 
@@ -206,7 +208,7 @@ people: [Igor Trindade, Felipe Titto]
 created: 2026-11-15
 updated: 2026-11-15
 workdir: null            # edit/<format>-<id>-<slug>, set when production starts
-final: null              # final/<file>, set when delivered
+final: null              # final/<Folder>/<file>, set when delivered
 ---
 
 ## Idea

@@ -619,7 +619,7 @@ def main() -> None:
     p.add_argument("--status", choices=STATUSES)
     p.add_argument("--first", action="store_true", help="put these videos at the front of the production order")
     p.add_argument("--workdir", help="production folder of this video, relative to the project (edit/<type>-<slug>)")
-    p.add_argument("--final", help="delivered file, relative to the project (final/...)")
+    p.add_argument("--final", help="delivered file, relative to the project (final/<video folder>/<file>)")
     p.add_argument("--note", help="one line for the video's log (what the user said, what happened)")
     p = add("reset", cmd_reset)
     p.add_argument("--all", action="store_true", help="also the answers to the opening questions and every video plan")
